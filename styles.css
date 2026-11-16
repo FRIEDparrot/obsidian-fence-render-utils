@@ -1,0 +1,279 @@
+/*
+ * Fence Render Utils
+ * Theme-aware window chrome for Markdown, LaTeX, and HTML previews.
+ */
+
+.fence-render-window {
+  --fence-render-accent: var(--interactive-accent);
+  position: relative;
+  margin: 1.35em 0;
+  overflow: hidden;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m, 8px);
+  background: var(--background-primary);
+  box-shadow: var(--shadow-s, 0 1px 2px rgba(0, 0, 0, 0.06));
+}
+
+.fence-render-window--markdown {
+  --fence-render-accent: var(--color-purple, var(--interactive-accent));
+}
+
+.fence-render-window--latex {
+  --fence-render-accent: var(--color-orange, var(--interactive-accent));
+}
+
+.fence-render-window--html {
+  --fence-render-accent: var(--color-blue, var(--interactive-accent));
+}
+
+.fence-render-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75em;
+  min-height: 34px;
+  padding: 0.3em 0.45em 0.3em 0.75em;
+  border-bottom: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+}
+
+.fence-render-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  min-width: 0;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller, 12px);
+  font-weight: var(--font-semibold, 600);
+  letter-spacing: 0.02em;
+}
+
+.fence-render-title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fence-render-accent);
+}
+
+.fence-render-title-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.fence-render-title-label {
+  white-space: nowrap;
+}
+
+.fence-render-actions {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.fence-render-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 4px;
+  color: var(--text-muted);
+}
+
+.fence-render-action:hover {
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
+}
+
+.fence-render-body {
+  position: relative;
+  max-height: min(72vh, 760px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.fence-render-window.is-expanded .fence-render-body {
+  max-height: none;
+  overflow: visible;
+}
+
+.fence-render-preview {
+  padding: 0.9em 1.1em;
+}
+
+.fence-render-preview.markdown-rendered > :first-child {
+  margin-top: 0;
+}
+
+.fence-render-preview.markdown-rendered > :last-child {
+  margin-bottom: 0;
+}
+
+.fence-render-preview--frame,
+.fence-render-preview--html {
+  padding: 0;
+}
+
+.fence-render-preview--latex {
+  padding: 0;
+  background: #ffffff;
+}
+
+.fence-render-paper {
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+  padding: 16px;
+  background: #ffffff;
+}
+
+.fence-render-latex-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+body.theme-dark .fence-render-window--latex.fence-render-invert-latex .fence-render-preview--latex,
+body.theme-dark .fence-render-window--latex.fence-render-invert-latex .fence-render-paper {
+  background: var(--background-primary);
+}
+
+body.theme-dark .fence-render-window--latex.fence-render-invert-latex .fence-render-latex-image {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+.fence-render-html-frame {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: var(--background-primary);
+}
+
+.fence-render-pane.is-hidden,
+.fence-render-preview.is-hidden {
+  display: none !important;
+}
+
+.fence-render-source {
+  padding: 0;
+}
+
+.fence-render-source-pre {
+  margin: 0;
+  padding: 1em 1.1em;
+  overflow: auto;
+  background: transparent;
+  border-radius: 0;
+}
+
+.fence-render-source-pre code {
+  display: block;
+  padding: 0;
+  background: transparent;
+  color: var(--code-normal, var(--text-normal));
+  font-family: var(--font-monospace);
+  font-size: var(--font-smaller, 0.86em);
+  line-height: 1.55;
+  white-space: pre;
+}
+
+.fence-render-source-note {
+  margin: 0.85em 1.1em 0;
+  padding: 0.55em 0.7em;
+  border-left: 3px solid var(--fence-render-accent);
+  border-radius: 0 var(--radius-s, 4px) var(--radius-s, 4px) 0;
+  background: var(--background-secondary);
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller, 12px);
+}
+
+.fence-render-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.5em 0.2em;
+  color: var(--text-muted);
+  font-size: var(--font-ui-small, 13px);
+}
+
+.fence-render-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--background-modifier-border);
+  border-top-color: var(--fence-render-accent);
+  border-radius: 50%;
+  animation: fence-render-spin 0.8s linear infinite;
+}
+
+@keyframes fence-render-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fence-render-empty {
+  padding: 0.45em 0.2em;
+  color: var(--text-faint);
+  font-style: italic;
+  font-size: var(--font-ui-small, 13px);
+}
+
+.fence-render-error {
+  color: var(--text-normal);
+}
+
+.fence-render-error-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  margin-bottom: 0.6em;
+  color: var(--text-error, #d64545);
+  font-size: var(--font-ui-small, 13px);
+  font-weight: var(--font-semibold, 600);
+}
+
+.fence-render-error-icon {
+  display: flex;
+  align-items: center;
+}
+
+.fence-render-error-icon svg {
+  width: 15px;
+  height: 15px;
+}
+
+.fence-render-error-detail {
+  max-height: 280px;
+  margin: 0;
+  padding: 0.75em 0.85em;
+  overflow: auto;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s, 4px);
+  background: var(--background-secondary);
+  color: var(--text-muted);
+  font-family: var(--font-monospace);
+  font-size: var(--font-smaller, 0.8em);
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.fence-render-settings-textarea {
+  width: min(100%, 36em);
+  min-height: 8em;
+  font-family: var(--font-monospace);
+  font-size: var(--font-smaller, 0.85em);
+}
+
+@media (max-width: 480px) {
+  .fence-render-titlebar {
+    padding-left: 0.55em;
+  }
+
+  .fence-render-preview {
+    padding: 0.7em 0.8em;
+  }
+
+  .fence-render-source-pre {
+    padding: 0.8em;
+  }
+}

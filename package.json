@@ -1,0 +1,30 @@
+{
+  "name": "fence-render-utils",
+  "version": "1.0.1",
+  "description": "Render Markdown, LaTeX, and HTML fenced code blocks as embedded previews in Obsidian.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "npm run typecheck && node esbuild.config.mjs production",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "markdown",
+    "latex",
+    "html",
+    "preview"
+  ],
+  "author": "Fence Render Utils",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "esbuild": "^0.25.12",
+    "obsidian": "^1.14.4",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
+  }
+}
