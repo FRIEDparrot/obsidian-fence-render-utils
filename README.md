@@ -30,6 +30,8 @@ by itself.
   `$$…$$` / `$…$` Markdown equations.
 - **Copy equation images** with a white background at high DPI, suitable for
   pasting into Word, PowerPoint, emails, or other notes.
+- **Right-click any rendered Markdown table** to copy only that table as
+  Markdown source or as a complete LaTeX `table`/`tabular` environment.
 - **LaTeX packages in settings.** Fences are assumed to be the body of a
   document, so `\usepackage` lines do not need to be repeated. Configure the
   packages and extra preamble once.
@@ -106,6 +108,24 @@ available. In Reading view, a small dedicated menu is shown.
 For a fenced LaTeX preview, right-click anywhere on the preview (the equation or
 its paper background). For a normal Markdown equation, right-click directly on
 the rendered math.
+
+### Copying tables
+
+Right-click a rendered Markdown table to open:
+
+- **Copy table as Markdown** — a pipe table with the same column alignment,
+  preserved inline formatting, and escaped `|` characters.
+- **Copy table as LaTeX** — a complete `table` / `tabular` environment with
+  `\hline` rules, column alignment, and escaped LaTeX special characters.
+
+Only the clicked table is copied. If you select a table and right-click just
+outside it, the table containing the selection is used. Other tables in the same
+note are ignored. In Live Preview these actions are added to Obsidian's normal
+editor context menu; in Reading view a dedicated table menu is shown.
+
+Table conversion flattens inline formatting in the LaTeX output. Markdown output
+keeps formatting such as bold, italics, code, and links when Obsidian exposes it
+in the rendered cell.
 
 ### LaTeX fences
 
@@ -235,6 +255,8 @@ src/
   compiler.ts      local latex + dvisvgm process runner and cache
   latex.ts         standalone document wrapper, math detection, log summaries
   html.ts          sandboxed HTML document builder and SVG data URLs
+  table.ts         Markdown/LaTeX table serializers
+  table-dom.ts     rendered-table extraction and selection resolution
   language.ts      fence aliases and labels
   prism.ts         source-view highlighting
   settings*.ts     settings model and settings tab

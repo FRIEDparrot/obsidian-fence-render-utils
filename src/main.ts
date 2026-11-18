@@ -19,6 +19,8 @@ import {
   normalizeSettings,
   type FenceRenderSettings,
 } from "./settings";
+import { tableToLatex, tableToMarkdown, type TableData } from "./table";
+import { extractTableData, resolveTable } from "./table-dom";
 
 export default class FenceRenderPlugin extends Plugin {
   settings: FenceRenderSettings = { ...DEFAULT_SETTINGS };
@@ -32,6 +34,11 @@ export default class FenceRenderPlugin extends Plugin {
     doc: Document;
     expiresAt: number;
   } | null = null;
+  private pendingTableContext: {
+    data: TableData;
+    doc: Document;
+    expiresAt: number;
+  } | null = null;
 
   async onload(): Promise<void> {
     await this.loadSettings();
@@ -39,22 +46,30 @@ export default class FenceRenderPlugin extends Plugin {
 
     this.addSettingTab(new FenceRenderSettingTab(this.app, this));
 
-    // Normal `$$…$$` / `$…$` equations are rendered by Obsidian itself, not by
-    // a fence processor. Add the copy menu to those MathJax elements too.
-    this.registerMathContextMenu(window);
+    // Normal `$$…$$` / `$…$` equations and Markdown tables are rendered by
+    // Obsidian itself, not by a fence processor. Add the copy menus there too.
+    this.registerContextMenu(window);
     this.registerEvent(
       this.app.workspace.on("window-open", (_workspaceWindow, win) => {
-        this.registerMathContextMenu(win);
+        this.registerContextMenu(win);
       }),
     );
     this.registerEvent(
       this.app.workspace.on("editor-menu", (menu) => {
-        const pending = this.pendingMathContext;
+        const table = this.pendingTableContext;
+        this.pendingTableContext = null;
+        if (table && table.expiresAt >= Date.now()) {
+          menu.addSeparator();
+          this.addTableMenuItems(menu, table.data, table.doc);
+          return;
+        }
+
+        const math = this.pendingMathContext;
         this.pendingMathContext = null;
-        if (!pending || pending.expiresAt < Date.now()) return;
+        if (!math || math.expiresAt < Date.now()) return;
 
         menu.addSeparator();
-        this.addMathMenuItems(menu, pending.source, pending.doc);
+        this.addMathMenuItems(menu, math.source, math.doc);
       }),
     );
 
@@ -167,30 +182,44 @@ export default class FenceRenderPlugin extends Plugin {
     }
   }
 
-  private registerMathContextMenu(win: Window): void {
+  private registerContextMenu(win: Window): void {
     this.registerDomEvent(
       win.document,
       "contextmenu",
-      (event) => this.handleMathContextMenu(event),
+      (event) => this.handleContextMenu(event),
       true,
     );
   }
 
-  private handleMathContextMenu(event: MouseEvent): void {
+  private handleContextMenu(event: MouseEvent): void {
     const target = event.target as HTMLElement | null;
     if (!target || typeof target.closest !== "function") {
       this.pendingMathContext = null;
+      this.pendingTableContext = null;
       return;
     }
 
+    // Math wins when the user right-clicks an equation inside a table cell.
     const mathEl = target.closest<HTMLElement>(".math");
-    if (!mathEl) {
-      this.pendingMathContext = null;
+    if (mathEl) {
+      this.handleMathContextMenu(event, mathEl);
       return;
     }
 
+    const tableEl = resolveTable(target, target.ownerDocument);
+    if (tableEl) {
+      this.handleTableContextMenu(event, tableEl);
+      return;
+    }
+
+    this.pendingMathContext = null;
+    this.pendingTableContext = null;
+  }
+
+  private handleMathContextMenu(event: MouseEvent, mathEl: HTMLElement): void {
     const source = extractMathSource(mathEl);
     if (!source) return;
+    this.pendingTableContext = null;
 
     // In Live Preview the math sits inside CodeMirror. Reuse Obsidian's editor
     // context menu instead of fighting it with a second menu.
@@ -203,13 +232,39 @@ export default class FenceRenderPlugin extends Plugin {
       return;
     }
 
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-
     const doc = mathEl.ownerDocument;
     const menu = new Menu();
     this.addMathMenuItems(menu, source, doc);
+    this.showDeferredMenu(event, doc, menu);
+  }
+
+  private handleTableContextMenu(
+    event: MouseEvent,
+    tableEl: HTMLTableElement,
+  ): void {
+    const data = extractTableData(tableEl);
+    if (!data) return;
+    this.pendingMathContext = null;
+
+    if (tableEl.closest(".markdown-source-view")) {
+      this.pendingTableContext = {
+        data,
+        doc: tableEl.ownerDocument,
+        expiresAt: Date.now() + 1500,
+      };
+      return;
+    }
+
+    const doc = tableEl.ownerDocument;
+    const menu = new Menu();
+    this.addTableMenuItems(menu, data, doc);
+    this.showDeferredMenu(event, doc, menu);
+  }
+
+  private showDeferredMenu(event: MouseEvent, doc: Document, menu: Menu): void {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
 
     // Showing a Menu while the reading-view contextmenu is still propagating
     // can be undone by Obsidian's menu housekeeping. Defer one task so our menu
@@ -245,6 +300,39 @@ export default class FenceRenderPlugin extends Plugin {
             });
         }),
     );
+  }
+
+  private addTableMenuItems(menu: Menu, data: TableData, doc: Document): void {
+    menu.addItem((item) =>
+      item
+        .setTitle("Copy table as Markdown")
+        .setIcon("file-text")
+        .onClick(() => {
+          void this.copyTable(tableToMarkdown(data), doc, "Markdown");
+        }),
+    );
+    menu.addItem((item) =>
+      item
+        .setTitle("Copy table as LaTeX")
+        .setIcon("code")
+        .onClick(() => {
+          void this.copyTable(tableToLatex(data), doc, "LaTeX");
+        }),
+    );
+  }
+
+  private async copyTable(
+    source: string,
+    doc: Document,
+    format: "Markdown" | "LaTeX",
+  ): Promise<void> {
+    try {
+      await copyText(doc, source);
+      new Notice(`Table copied as ${format}.`);
+    } catch (error) {
+      console.error(`Fence Render Utils: could not copy ${format} table`, error);
+      new Notice(`Could not copy the table as ${format}.`);
+    }
   }
 
   private async copyMathEquationImage(

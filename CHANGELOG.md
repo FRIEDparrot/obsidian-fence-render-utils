@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.2
+
+- Added **Copy table as Markdown** and **Copy table as LaTeX** to the
+  right-click menu for rendered Markdown tables.
+- The table menu uses only the clicked table, or the table containing the
+  current selection, even when a note contains several tables.
+- Markdown output preserves inline formatting, escapes pipes, and restores
+  column alignment.
+- LaTeX output produces a complete `table`/`tabular` environment with escaped
+  special characters and aligned columns.
+
 ## 1.0.1
 
 - Added **Copy equation image** and **Copy LaTeX source** to the right-click menu
