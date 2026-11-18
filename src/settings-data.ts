@@ -12,6 +12,7 @@ export interface FenceRenderSettings extends LatexCompilerSettings {
   allowHtmlScripts: boolean;
   htmlHeight: number;
   latexInvertDark: boolean;
+  wrapEquationCopy: boolean;
 }
 
 export const DEFAULT_SETTINGS: FenceRenderSettings = {
@@ -23,6 +24,7 @@ export const DEFAULT_SETTINGS: FenceRenderSettings = {
   allowHtmlScripts: true,
   htmlHeight: 360,
   latexInvertDark: true,
+  wrapEquationCopy: true,
   latexPath: "latex",
   dvisvgmPath: "dvisvgm",
   pdftocairoPath: "pdftocairo",
@@ -60,6 +62,10 @@ export function normalizeSettings(raw: unknown): FenceRenderSettings {
     allowHtmlScripts: booleanOr(value.allowHtmlScripts, DEFAULT_SETTINGS.allowHtmlScripts),
     htmlHeight: clampNumber(value.htmlHeight, DEFAULT_SETTINGS.htmlHeight, 160, 900),
     latexInvertDark: booleanOr(value.latexInvertDark, DEFAULT_SETTINGS.latexInvertDark),
+    wrapEquationCopy: booleanOr(
+      value.wrapEquationCopy,
+      DEFAULT_SETTINGS.wrapEquationCopy,
+    ),
     latexPath: stringOr(value.latexPath, DEFAULT_SETTINGS.latexPath) || DEFAULT_SETTINGS.latexPath,
     dvisvgmPath:
       stringOr(value.dvisvgmPath, DEFAULT_SETTINGS.dvisvgmPath) || DEFAULT_SETTINGS.dvisvgmPath,

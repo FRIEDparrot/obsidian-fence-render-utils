@@ -1,7 +1,7 @@
 {
   "id": "fence-render-utils",
   "name": "Fence Render Utils",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "minAppVersion": "1.8.0",
   "description": "Render Markdown, LaTeX, and HTML fenced code blocks as embedded previews.",
   "author": "Fence Render Utils",

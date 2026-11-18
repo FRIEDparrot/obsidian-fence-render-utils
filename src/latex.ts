@@ -511,6 +511,63 @@ export function looksLikeBareMath(source: string): boolean {
   return score >= 2;
 }
 
+/**
+ * Whether a fenced LaTeX source is a single equation that should receive the
+ * equation-environment wrapper when its source is copied. Existing display
+ * environments and full documents are left alone.
+ */
+export function isEquationSourceForCopy(source: string): boolean {
+  const value = source.trim();
+  if (!value) return false;
+  if (/\\documentclass\b/.test(value)) return false;
+  if (
+    environmentNames(value).some(
+      (name) =>
+        DOCUMENT_ENVIRONMENTS.has(name) || DISPLAY_MATH_ENVIRONMENTS.has(name),
+    )
+  ) {
+    return false;
+  }
+
+  if (/^\s*(?:\$\$|\\\[|\\\(|\$)/.test(value)) return true;
+  return looksLikeBareMath(value);
+}
+
+/**
+ * Wrap copied equation source in an `equation` environment. Existing
+ * `equation`/`align`-style environments and complete documents are left
+ * untouched; outer `$…$` / `\[…\]` delimiters are replaced by the environment.
+ */
+export function wrapEquationEnvironment(source: string): string {
+  const value = source.trim();
+  if (!value) return source;
+  if (/\\documentclass\b/.test(value)) return source;
+
+  const environments = environmentNames(value);
+  if (
+    environments.some(
+      (name) =>
+        DOCUMENT_ENVIRONMENTS.has(name) || DISPLAY_MATH_ENVIRONMENTS.has(name),
+    )
+  ) {
+    return source;
+  }
+
+  let body = value;
+  const dollar = body.match(/^\$\$([\s\S]*)\$\$$/);
+  const bracket = body.match(/^\\\[([\s\S]*)\\\]$/);
+  const paren = body.match(/^\\\(([\s\S]*)\\\)$/);
+  const singleDollar = body.match(/^\$([\s\S]*)\$$/);
+
+  if (dollar) body = dollar[1].trim();
+  else if (bracket) body = bracket[1].trim();
+  else if (paren) body = paren[1].trim();
+  else if (singleDollar) body = singleDollar[1].trim();
+
+  if (!body) return source;
+  return `\\begin{equation}\n${body}\n\\end{equation}`;
+}
+
 export function wrapBareMath(source: string): string {
   const value = source.trim();
   if (!value) return value;

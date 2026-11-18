@@ -8,6 +8,7 @@ import {
 } from "obsidian";
 import type { LatexCompileResult } from "./compiler";
 import { buildHtmlDocument, svgToDataUrl, type HtmlTheme } from "./html";
+import { isEquationSourceForCopy, wrapEquationEnvironment } from "./latex";
 import { LANGUAGE_ICONS, LANGUAGE_LABELS, type RenderLanguage } from "./language";
 import { highlightSource } from "./prism";
 import type { DefaultView } from "./settings";
@@ -26,6 +27,7 @@ interface WindowOptions {
   language: RenderLanguage;
   showToolbar: boolean;
   initialView: DefaultView;
+  copySourceText?: string;
 }
 
 /**
@@ -41,6 +43,7 @@ export class FenceWindow {
   private readonly doc: Document;
   private readonly language: RenderLanguage;
   private readonly source: string;
+  private readonly copySourceText: string;
   private readonly sourcePane: HTMLElement;
   private readonly sourceNote: HTMLElement;
   private toggleButton: HTMLButtonElement | null = null;
@@ -52,6 +55,7 @@ export class FenceWindow {
     this.doc = options.doc;
     this.language = options.language;
     this.source = source;
+    this.copySourceText = options.copySourceText ?? source;
     this.view = options.initialView;
 
     const root = this.doc.createElement("div");
@@ -266,7 +270,7 @@ export class FenceWindow {
 
   private async copySource(): Promise<void> {
     try {
-      await copyText(this.doc, this.source);
+      await copyText(this.doc, this.copySourceText);
       new Notice(`Copied ${LANGUAGE_LABELS[this.language]} source.`);
       if (this.copyButton) {
         setIcon(this.copyButton, "check");
@@ -524,11 +528,19 @@ function createWindow(
   language: RenderLanguage,
   source: string,
 ): FenceWindow {
+  const copySourceText =
+    language === "latex" &&
+    plugin.settings.wrapEquationCopy &&
+    isEquationSourceForCopy(source)
+      ? wrapEquationEnvironment(source)
+      : source;
+
   const win = new FenceWindow(source, {
     doc,
     language,
     showToolbar: plugin.settings.showToolbar,
     initialView: plugin.settings.defaultView,
+    copySourceText,
   });
 
   if (language === "latex" && plugin.settings.latexInvertDark) {

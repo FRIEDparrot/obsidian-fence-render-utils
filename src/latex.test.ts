@@ -3,10 +3,12 @@ import {
   buildLatexDocument,
   extractDocumentBody,
   formatPackageLines,
+  isEquationSourceForCopy,
   looksLikeBareMath,
   parsePackageList,
   summarizeLatexFailure,
   wrapBareMath,
+  wrapEquationEnvironment,
 } from "./latex";
 
 describe("LaTeX package parsing", () => {
@@ -138,6 +140,46 @@ describe("bare math detection", () => {
 
   it("joins paragraphs when wrapping", () => {
     expect(wrapBareMath("a=b\n\nc=d")).toBe("\\[\na=b\n\\[0.6em]\nc=d\n\\]");
+  });
+});
+
+describe("equation source copy wrapping", () => {
+  it("wraps bare and tagged equations", () => {
+    expect(wrapEquationEnvironment("E = mc^2")).toBe(
+      "\\begin{equation}\nE = mc^2\n\\end{equation}",
+    );
+    expect(wrapEquationEnvironment("aX \\sim N \\tag{1.1}")).toBe(
+      "\\begin{equation}\naX \\sim N \\tag{1.1}\n\\end{equation}",
+    );
+  });
+
+  it("replaces outer math delimiters with an equation environment", () => {
+    expect(wrapEquationEnvironment("$$E = mc^2$$")).toBe(
+      "\\begin{equation}\nE = mc^2\n\\end{equation}",
+    );
+    expect(wrapEquationEnvironment("\\[a=b\\]")).toBe(
+      "\\begin{equation}\na=b\n\\end{equation}",
+    );
+  });
+
+  it("leaves existing environments and full documents alone", () => {
+    const equation = "\\begin{equation}E=mc^2\\end{equation}";
+    expect(wrapEquationEnvironment(equation)).toBe(equation);
+
+    const align = "\\begin{align}a&=b\\end{align}";
+    expect(wrapEquationEnvironment(align)).toBe(align);
+
+    const document = "\\documentclass{article}\\begin{document}Hi\\end{document}";
+    expect(wrapEquationEnvironment(document)).toBe(document);
+  });
+
+  it("detects equation-like fenced sources", () => {
+    expect(isEquationSourceForCopy("E = mc^2")).toBe(true);
+    expect(isEquationSourceForCopy("$$E = mc^2$$")).toBe(true);
+    expect(isEquationSourceForCopy("\\begin{aligned}a&=b\\end{aligned}")).toBe(true);
+    expect(isEquationSourceForCopy("\\begin{equation}E=mc^2\\end{equation}")).toBe(false);
+    expect(isEquationSourceForCopy("The purpose of this work is text.")).toBe(false);
+    expect(isEquationSourceForCopy("\\begin{tabular}{ll}a&b\\end{tabular}")).toBe(false);
   });
 });
 

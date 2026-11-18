@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.3
+
+- Added **Wrap copied equations in an equation environment**, enabled by
+  default.
+- Copied LaTeX source for normal Markdown equations and equation-like fenced
+  LaTeX previews now uses `\begin{equation} … \end{equation}`.
+- Existing equation/align environments, prose, tables, and full documents are
+  left unchanged.
+- The option can be disabled to copy raw source again.
+
 ## 1.0.2
 
 - Added **Copy table as Markdown** and **Copy table as LaTeX** to the

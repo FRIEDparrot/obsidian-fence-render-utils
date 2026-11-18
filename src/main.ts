@@ -6,6 +6,7 @@ import {
   Plugin,
 } from "obsidian";
 import { LatexCompiler, type ToolchainStatus } from "./compiler";
+import { wrapEquationEnvironment } from "./latex";
 import type { RenderLanguage } from "./language";
 import {
   copyEquationImage,
@@ -290,16 +291,27 @@ export default class FenceRenderPlugin extends Plugin {
         .setTitle("Copy LaTeX source")
         .setIcon("code")
         .onClick(() => {
-          void copyText(doc, source)
-            .then(() => {
-              new Notice("Equation source copied to clipboard.");
-            })
-            .catch((error) => {
-              console.error("Fence Render Utils: could not copy equation source", error);
-              new Notice("Could not copy the equation source.");
-            });
+          void this.copyMathSource(source, doc);
         }),
     );
+  }
+
+  private async copyMathSource(source: string, doc: Document): Promise<void> {
+    const text = this.settings.wrapEquationCopy
+      ? wrapEquationEnvironment(source)
+      : source;
+
+    try {
+      await copyText(doc, text);
+      new Notice(
+        this.settings.wrapEquationCopy
+          ? "Equation source copied in an equation environment."
+          : "Equation source copied to clipboard.",
+      );
+    } catch (error) {
+      console.error("Fence Render Utils: could not copy equation source", error);
+      new Notice("Could not copy the equation source.");
+    }
   }
 
   private addTableMenuItems(menu: Menu, data: TableData, doc: Document): void {

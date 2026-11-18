@@ -87,6 +87,19 @@ export class FenceRenderSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
+      .setName("Wrap copied equations in an equation environment")
+      .setDesc(
+        "When copying LaTeX source for an equation, add \\begin{equation} … \\end{equation}. " +
+          "Already-wrapped environments and complete documents are left unchanged. On by default.",
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.wrapEquationCopy).onChange(async (value) => {
+          this.plugin.settings.wrapEquationCopy = value;
+          await this.plugin.saveSettings();
+        }),
+      );
+
+    new Setting(containerEl)
       .setName("Invert LaTeX colors in dark mode")
       .setDesc(
         "Shows compiled LaTeX as light-on-dark in Obsidian's dark theme by inverting the SVG. " +

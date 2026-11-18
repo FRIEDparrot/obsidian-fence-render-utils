@@ -28,6 +28,8 @@ by itself.
 - **Right-click any rendered equation** to copy it as a PNG image or copy its
   LaTeX source. This works for both fenced LaTeX previews and normal
   `$$…$$` / `$…$` Markdown equations.
+- **Equation-environment copy.** Copied equation source is wrapped in
+  `\begin{equation} … \end{equation}` by default, with a setting to turn this off.
 - **Copy equation images** with a white background at high DPI, suitable for
   pasting into Word, PowerPoint, emails, or other notes.
 - **Right-click any rendered Markdown table** to copy only that table as
@@ -99,7 +101,13 @@ editable source. Move the cursor outside the block to see the embedded preview.
 Right-click a rendered equation to open:
 
 - **Copy equation image** — copies a high-DPI PNG with a white background.
-- **Copy LaTeX source** — copies the equation's TeX source.
+- **Copy LaTeX source** — copies the equation's TeX source inside
+  `\begin{equation} … \end{equation}` by default.
+
+The equation wrapper is controlled by **Wrap copied equations in an equation
+environment** in settings and is on by default. Existing equation/align
+environments, prose, tables, and full documents are left as they are. Turning it
+off copies the raw source.
 
 This works in Reading view and Live Preview. In Live Preview, the items are added
 to Obsidian's normal editor context menu, so the usual editor actions stay
@@ -186,6 +194,8 @@ good place for macros such as `\newcommand{\R}{\mathbb{R}}`.
 
 - **Default view** — rendered or source
 - **Show window toolbar** — language label, source toggle, copy, and expand
+- **Wrap copied equations in an equation environment** — default on; adds
+  `\begin{equation} … \end{equation}` to copied equation source
 - **Invert LaTeX colors in dark mode** — default on; uses
   `filter: invert(1) hue-rotate(180deg)` and a dark paper background in dark
   themes
