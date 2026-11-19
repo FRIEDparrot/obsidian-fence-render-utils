@@ -2,6 +2,7 @@ import type { LatexCompilerSettings } from "./compiler";
 import { DEFAULT_LATEX_PACKAGES } from "./latex";
 
 export type DefaultView = "rendered" | "source";
+export type LatexPreviewWidth = "fit" | "full";
 
 export interface FenceRenderSettings extends LatexCompilerSettings {
   renderMarkdown: boolean;
@@ -13,6 +14,8 @@ export interface FenceRenderSettings extends LatexCompilerSettings {
   htmlHeight: number;
   latexInvertDark: boolean;
   wrapEquationCopy: boolean;
+  latexPreviewScale: number;
+  latexPreviewWidth: LatexPreviewWidth;
 }
 
 export const DEFAULT_SETTINGS: FenceRenderSettings = {
@@ -25,6 +28,8 @@ export const DEFAULT_SETTINGS: FenceRenderSettings = {
   htmlHeight: 360,
   latexInvertDark: true,
   wrapEquationCopy: true,
+  latexPreviewScale: 200,
+  latexPreviewWidth: "fit",
   latexPath: "latex",
   dvisvgmPath: "dvisvgm",
   pdftocairoPath: "pdftocairo",
@@ -66,6 +71,16 @@ export function normalizeSettings(raw: unknown): FenceRenderSettings {
       value.wrapEquationCopy,
       DEFAULT_SETTINGS.wrapEquationCopy,
     ),
+    latexPreviewScale: clampNumber(
+      value.latexPreviewScale,
+      DEFAULT_SETTINGS.latexPreviewScale,
+      100,
+      400,
+    ),
+    latexPreviewWidth:
+      value.latexPreviewWidth === "full" || value.latexPreviewWidth === "fit"
+        ? value.latexPreviewWidth
+        : DEFAULT_SETTINGS.latexPreviewWidth,
     latexPath: stringOr(value.latexPath, DEFAULT_SETTINGS.latexPath) || DEFAULT_SETTINGS.latexPath,
     dvisvgmPath:
       stringOr(value.dvisvgmPath, DEFAULT_SETTINGS.dvisvgmPath) || DEFAULT_SETTINGS.dvisvgmPath,

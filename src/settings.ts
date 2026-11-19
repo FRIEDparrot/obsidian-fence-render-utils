@@ -4,7 +4,11 @@ import { DEFAULT_SETTINGS } from "./settings-data";
 import type FenceRenderPlugin from "./main";
 
 export { DEFAULT_SETTINGS, normalizeSettings } from "./settings-data";
-export type { DefaultView, FenceRenderSettings } from "./settings-data";
+export type {
+  DefaultView,
+  FenceRenderSettings,
+  LatexPreviewWidth,
+} from "./settings-data";
 
 export class FenceRenderSettingTab extends PluginSettingTab {
   private readonly plugin: FenceRenderPlugin;
@@ -78,12 +82,45 @@ export class FenceRenderSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Show window toolbar")
-      .setDesc("Shows the language label, source toggle, copy button, and expand button.")
+      .setDesc("Shows the language label, source toggle, copy, and fullscreen buttons.")
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.showToolbar).onChange(async (value) => {
           this.plugin.settings.showToolbar = value;
           await this.plugin.saveSettings();
         }),
+      );
+
+    new Setting(containerEl)
+      .setName("LaTeX preview size")
+      .setDesc(
+        "Scales the compiled LaTeX image. 100% is the natural size; increase it for easier review.",
+      )
+      .addSlider((slider) =>
+        slider
+          .setLimits(100, 400, 10)
+          .setValue(this.plugin.settings.latexPreviewScale)
+          .setDynamicTooltip()
+          .onChange(async (value) => {
+            this.plugin.settings.latexPreviewScale = value;
+            await this.plugin.saveSettings();
+          }),
+      );
+
+    new Setting(containerEl)
+      .setName("LaTeX preview width")
+      .setDesc(
+        "Fit content keeps the natural line length at the configured size. Full width stretches " +
+          "the compiled image to the note/window width.",
+      )
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption("fit", "Fit content")
+          .addOption("full", "Full width")
+          .setValue(this.plugin.settings.latexPreviewWidth)
+          .onChange(async (value) => {
+            this.plugin.settings.latexPreviewWidth = value === "full" ? "full" : "fit";
+            await this.plugin.saveSettings();
+          }),
       );
 
     new Setting(containerEl)

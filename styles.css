@@ -92,9 +92,66 @@
   overscroll-behavior: contain;
 }
 
-.fence-render-window.is-expanded .fence-render-body {
+.fence-render-window.is-fullscreen {
+  position: fixed;
+  inset: 1.25rem;
+  z-index: var(--layer-modal, 1000);
+  display: flex;
+  flex-direction: column;
   max-height: none;
-  overflow: visible;
+  margin: 0;
+  box-shadow:
+    0 0 0 100vmax rgba(0, 0, 0, 0.52),
+    var(--shadow-l, 0 16px 48px rgba(0, 0, 0, 0.3));
+}
+
+.fence-render-window.is-fullscreen .fence-render-titlebar {
+  flex: 0 0 auto;
+}
+
+.fence-render-window.is-fullscreen .fence-render-body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  max-height: none;
+  overflow: hidden;
+}
+
+.fence-render-window.is-fullscreen .fence-render-preview {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.fence-render-window.is-fullscreen .fence-render-preview--frame {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.fence-render-window.is-fullscreen .fence-render-preview--latex {
+  display: flex;
+}
+
+.fence-render-window.is-fullscreen .fence-render-paper {
+  flex: 1 1 auto;
+  align-items: center;
+}
+
+.fence-render-window.is-fullscreen .fence-render-latex-image {
+  width: 100% !important;
+}
+
+.fence-render-window.is-fullscreen .fence-render-html-frame {
+  flex: 1 1 auto;
+  height: 100% !important;
+}
+
+.fence-render-window.is-fullscreen .fence-render-source {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
 }
 
 .fence-render-preview {
@@ -265,6 +322,11 @@ body.theme-dark .fence-render-window--latex.fence-render-invert-latex .fence-ren
 }
 
 @media (max-width: 480px) {
+  .fence-render-window.is-fullscreen {
+    inset: 0;
+    border-radius: 0;
+  }
+
   .fence-render-titlebar {
     padding-left: 0.55em;
   }

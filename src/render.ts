@@ -11,7 +11,7 @@ import { buildHtmlDocument, svgToDataUrl, type HtmlTheme } from "./html";
 import { isEquationSourceForCopy, wrapEquationEnvironment } from "./latex";
 import { LANGUAGE_ICONS, LANGUAGE_LABELS, type RenderLanguage } from "./language";
 import { highlightSource } from "./prism";
-import type { DefaultView } from "./settings";
+import type { DefaultView, LatexPreviewWidth } from "./settings";
 import type FenceRenderPlugin from "./main";
 
 export interface RenderRequest {
@@ -28,6 +28,8 @@ interface WindowOptions {
   showToolbar: boolean;
   initialView: DefaultView;
   copySourceText?: string;
+  latexScale?: number;
+  latexWidth?: LatexPreviewWidth;
 }
 
 /**
@@ -46,9 +48,12 @@ export class FenceWindow {
   private readonly copySourceText: string;
   private readonly sourcePane: HTMLElement;
   private readonly sourceNote: HTMLElement;
+  private readonly latexScale: number;
+  private readonly latexWidth: LatexPreviewWidth;
   private toggleButton: HTMLButtonElement | null = null;
   private copyButton: HTMLButtonElement | null = null;
   private expandButton: HTMLButtonElement | null = null;
+  private fullscreenKeyHandler: ((event: KeyboardEvent) => void) | null = null;
   private view: DefaultView;
 
   constructor(source: string, options: WindowOptions) {
@@ -56,6 +61,8 @@ export class FenceWindow {
     this.language = options.language;
     this.source = source;
     this.copySourceText = options.copySourceText ?? source;
+    this.latexScale = options.latexScale ?? 2;
+    this.latexWidth = options.latexWidth ?? "fit";
     this.view = options.initialView;
 
     const root = this.doc.createElement("div");
@@ -152,7 +159,20 @@ export class FenceWindow {
     image.alt = "Rendered LaTeX";
     image.title = "Right-click to copy the equation image";
     image.draggable = false;
+
+    const applyConfiguredSize = (): void => {
+      if (this.latexWidth === "full") {
+        image.style.width = "100%";
+        return;
+      }
+
+      const naturalWidth = image.naturalWidth || image.width || 1;
+      image.style.width = `${Math.max(1, Math.round(naturalWidth * this.latexScale))}px`;
+    };
+
+    image.addEventListener("load", applyConfiguredSize);
     image.src = svgToDataUrl(svg);
+    if (image.complete && image.naturalWidth > 0) applyConfiguredSize();
 
     paper.addEventListener(
       "contextmenu",
@@ -225,10 +245,10 @@ export class FenceWindow {
     });
     this.copyButton = copy;
 
-    const expand = this.makeButton("maximize-2", "Expand preview");
+    const expand = this.makeButton("maximize-2", "Full screen preview");
     expand.addEventListener("click", (event) => {
       event.preventDefault();
-      this.toggleExpanded();
+      this.toggleFullscreen();
     });
     this.expandButton = expand;
 
@@ -284,13 +304,36 @@ export class FenceWindow {
     }
   }
 
-  private toggleExpanded(): void {
-    const expanded = this.root.classList.toggle("is-expanded");
+  private toggleFullscreen(): void {
+    this.setFullscreen(!this.root.classList.contains("is-fullscreen"));
+  }
+
+  private setFullscreen(fullscreen: boolean): void {
+    this.root.classList.toggle("is-fullscreen", fullscreen);
+
     if (this.expandButton) {
-      const label = expanded ? "Collapse preview" : "Expand preview";
-      setIcon(this.expandButton, expanded ? "minimize-2" : "maximize-2");
+      const label = fullscreen ? "Exit full screen" : "Full screen preview";
+      setIcon(this.expandButton, fullscreen ? "minimize-2" : "maximize-2");
       this.expandButton.setAttribute("aria-label", label);
       this.expandButton.setAttribute("data-tooltip", label);
+      this.expandButton.setAttribute("aria-pressed", String(fullscreen));
+    }
+
+    if (fullscreen && !this.fullscreenKeyHandler) {
+      this.fullscreenKeyHandler = (event: KeyboardEvent) => {
+        if (event.key !== "Escape") return;
+        if (!this.root.isConnected) {
+          this.setFullscreen(false);
+          return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        this.setFullscreen(false);
+      };
+      this.doc.addEventListener("keydown", this.fullscreenKeyHandler, true);
+    } else if (!fullscreen && this.fullscreenKeyHandler) {
+      this.doc.removeEventListener("keydown", this.fullscreenKeyHandler, true);
+      this.fullscreenKeyHandler = null;
     }
   }
 }
@@ -541,6 +584,8 @@ function createWindow(
     showToolbar: plugin.settings.showToolbar,
     initialView: plugin.settings.defaultView,
     copySourceText,
+    latexScale: plugin.settings.latexPreviewScale / 100,
+    latexWidth: plugin.settings.latexPreviewWidth,
   });
 
   if (language === "latex" && plugin.settings.latexInvertDark) {

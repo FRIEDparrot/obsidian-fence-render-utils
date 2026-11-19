@@ -24,7 +24,10 @@ by itself.
 - **Per-format switches.** Markdown, LaTeX, and HTML can each be turned on or off
   from settings. Disabled formats fall back to a normal-looking code block.
 - **Window controls.** Every preview has a toolbar with source/preview, copy, and
-  expand buttons. The toolbar can be hidden in settings.
+  fullscreen buttons. Fullscreen opens a viewport-sized review window; Escape or
+  the same button closes it. The toolbar can be hidden in settings.
+- **Adjustable LaTeX preview size and width.** Scale compiled LaTeX from 100% to
+  400% and choose fit-content or full-width rendering.
 - **Right-click any rendered equation** to copy it as a PNG image or copy its
   LaTeX source. This works for both fenced LaTeX previews and normal
   `$$…$$` / `$…$` Markdown equations.
@@ -135,6 +138,18 @@ Table conversion flattens inline formatting in the LaTeX output. Markdown output
 keeps formatting such as bold, italics, code, and links when Obsidian exposes it
 in the rendered cell.
 
+### Preview size and fullscreen
+
+Compiled LaTeX has two review controls in **Settings → Fence Render Utils →
+Preview**:
+
+- **LaTeX preview size** — scales the equation from 100% to 400%; default 200%
+- **LaTeX preview width** — **Fit content** keeps the natural width at that
+  scale, while **Full width** stretches the SVG to the note width
+
+The fullscreen button in each window toolbar opens the preview across the
+Obsidian viewport. Press **Escape** or click the button again to close it.
+
 ### LaTeX fences
 
 Each fence is wrapped like this:
@@ -193,7 +208,9 @@ good place for macros such as `\newcommand{\R}{\mathbb{R}}`.
 ### Preview
 
 - **Default view** — rendered or source
-- **Show window toolbar** — language label, source toggle, copy, and expand
+- **Show window toolbar** — language label, source toggle, copy, and fullscreen
+- **LaTeX preview size** — 100% to 400%, default 200%
+- **LaTeX preview width** — fit content or full width; default fit content
 - **Wrap copied equations in an equation environment** — default on; adds
   `\begin{equation} … \end{equation}` to copied equation source
 - **Invert LaTeX colors in dark mode** — default on; uses

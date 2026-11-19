@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.1.0
+
+- Added **LaTeX preview size** (100%–400%, default 200%) and **LaTeX preview
+  width** (fit content or full width) settings.
+- Scaled LaTeX SVGs are now measured and rendered at the configured size, so
+  equations are easier to review and can use the full note width.
+- Replaced the inert **Expand preview** toggle with a true **fullscreen**
+  preview that fills the viewport.
+- Fullscreen closes with Escape or the toolbar button.
+- Fullscreen uses the available width for LaTeX and HTML previews.
+
 ## 1.0.3
 
 - Added **Wrap copied equations in an equation environment**, enabled by
