@@ -89,7 +89,10 @@
   position: relative;
   max-height: min(72vh, 760px);
   overflow: auto;
-  overscroll-behavior: contain;
+}
+
+.fence-render-window.is-collapsed .fence-render-body {
+  display: none;
 }
 
 .fence-render-window.is-fullscreen {

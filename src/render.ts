@@ -53,6 +53,7 @@ export class FenceWindow {
   private toggleButton: HTMLButtonElement | null = null;
   private copyButton: HTMLButtonElement | null = null;
   private expandButton: HTMLButtonElement | null = null;
+  private foldButton: HTMLButtonElement | null = null;
   private fullscreenKeyHandler: ((event: KeyboardEvent) => void) | null = null;
   private view: DefaultView;
 
@@ -231,6 +232,13 @@ export class FenceWindow {
     const actions = this.doc.createElement("div");
     actions.className = "fence-render-actions";
 
+    const fold = this.makeButton("chevron-down", "Collapse preview");
+    fold.addEventListener("click", (event) => {
+      event.preventDefault();
+      this.setCollapsed(!this.root.classList.contains("is-collapsed"));
+    });
+    this.foldButton = fold;
+
     const toggle = this.makeButton("code", "Show source");
     toggle.addEventListener("click", (event) => {
       event.preventDefault();
@@ -252,7 +260,7 @@ export class FenceWindow {
     });
     this.expandButton = expand;
 
-    actions.append(toggle, copy, expand);
+    actions.append(fold, toggle, copy, expand);
     toolbar.append(title, actions);
     return toolbar;
   }
@@ -304,11 +312,24 @@ export class FenceWindow {
     }
   }
 
+  private setCollapsed(collapsed: boolean): void {
+    this.root.classList.toggle("is-collapsed", collapsed);
+
+    if (this.foldButton) {
+      const label = collapsed ? "Expand preview" : "Collapse preview";
+      setIcon(this.foldButton, collapsed ? "chevron-right" : "chevron-down");
+      this.foldButton.setAttribute("aria-label", label);
+      this.foldButton.setAttribute("data-tooltip", label);
+      this.foldButton.setAttribute("aria-expanded", String(!collapsed));
+    }
+  }
+
   private toggleFullscreen(): void {
     this.setFullscreen(!this.root.classList.contains("is-fullscreen"));
   }
 
   private setFullscreen(fullscreen: boolean): void {
+    if (fullscreen) this.setCollapsed(false);
     this.root.classList.toggle("is-fullscreen", fullscreen);
 
     if (this.expandButton) {
@@ -496,10 +517,26 @@ async function renderMarkdownFence(request: RenderRequest): Promise<void> {
     const child = new MarkdownRenderChild(win.preview);
     ctx.addChild(child);
     await MarkdownRenderer.render(plugin.app, source, win.preview, ctx.sourcePath, child);
+
+    if (!hasVisibleMarkdownOutput(win.preview)) {
+      win.setSourceNote(
+        "This Markdown fence has no visible rendered output; showing its source.",
+      );
+      win.setView("source");
+    }
   } catch (error) {
     console.error("Fence Render Utils: Markdown rendering failed", error);
     win.setError(error instanceof Error ? error.message : String(error));
   }
+}
+
+function hasVisibleMarkdownOutput(element: HTMLElement): boolean {
+  if ((element.innerText ?? "").trim().length > 0) return true;
+  return Boolean(
+    element.querySelector(
+      "img, svg, video, canvas, iframe, table, pre, hr, mjx-container, .math",
+    ),
+  );
 }
 
 async function renderLatexFence(request: RenderRequest): Promise<void> {

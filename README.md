@@ -23,9 +23,12 @@ by itself.
   normal editable source when the cursor enters it.
 - **Per-format switches.** Markdown, LaTeX, and HTML can each be turned on or off
   from settings. Disabled formats fall back to a normal-looking code block.
-- **Window controls.** Every preview has a toolbar with source/preview, copy, and
-  fullscreen buttons. Fullscreen opens a viewport-sized review window; Escape or
-  the same button closes it. The toolbar can be hidden in settings.
+- **Window controls.** Every preview has a toolbar with fold, source/preview,
+  copy, and fullscreen buttons. Fold collapses a multi-line preview to its
+  header; fullscreen opens a viewport-sized review window. The toolbar can be
+  hidden in settings.
+- **Outer-page scroll chaining.** When an inner preview reaches its scroll
+  boundary, continued scrolling moves the note instead of stopping.
 - **Adjustable LaTeX preview size and width.** Scale compiled LaTeX from 100% to
   400% and choose fit-content or full-width rendering.
 - **Right-click any rendered equation** to copy it as a PNG image or copy its
@@ -149,6 +152,15 @@ Preview**:
 
 The fullscreen button in each window toolbar opens the preview across the
 Obsidian viewport. Press **Escape** or click the button again to close it.
+
+The fold button collapses a multi-line preview to its title bar, so long code
+blocks do not take up the whole note while browsing. Click it again to expand.
+Preview bodies also let scroll continue to the outer note once the inner content
+reaches its end.
+
+If a Markdown fence produces no visible output—for example, a fence containing
+only footnote definitions—the window shows its source with a short explanation
+instead of rendering an empty body.
 
 ### LaTeX fences
 

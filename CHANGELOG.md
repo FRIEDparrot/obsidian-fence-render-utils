@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.1
+
+- Restored a fold/collapse control in the preview toolbar, so multi-line
+  previews can be collapsed to the header and expanded again.
+- Markdown fences with no visible rendered output (for example, only footnote
+  definitions) now show their source instead of an empty window.
+- Removed the inner-preview scroll containment; when the preview reaches its
+  scroll boundary, further scrolling continues through the outer note.
+- Kept the fullscreen and LaTeX size/width controls.
+
 ## 1.1.0
 
 - Added **LaTeX preview size** (100%–400%, default 200%) and **LaTeX preview
