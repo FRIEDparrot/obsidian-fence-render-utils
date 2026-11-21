@@ -1,4 +1,5 @@
 import {
+  type Editor,
   MarkdownPostProcessorContext,
   MarkdownView,
   Menu,
@@ -8,6 +9,7 @@ import {
 import { LatexCompiler, type ToolchainStatus } from "./compiler";
 import { wrapEquationEnvironment } from "./latex";
 import type { RenderLanguage } from "./language";
+import { convertChatGptMath } from "./paste";
 import {
   copyEquationImage,
   copyText,
@@ -46,6 +48,22 @@ export default class FenceRenderPlugin extends Plugin {
     this.compilerSignature = this.currentCompilerSignature();
 
     this.addSettingTab(new FenceRenderSettingTab(this.app, this));
+
+    this.registerEvent(
+      this.app.workspace.on("editor-paste", (event, editor) => {
+        if (!this.settings.convertChatGptPaste || event.defaultPrevented) return;
+        if (isCursorInFencedCodeBlock(editor)) return;
+
+        const text = event.clipboardData?.getData("text/plain");
+        if (!text) return;
+
+        const converted = convertChatGptMath(text);
+        if (converted === text) return;
+
+        event.preventDefault();
+        editor.replaceSelection(converted);
+      }),
+    );
 
     // Normal `$$…$$` / `$…$` equations and Markdown tables are rendered by
     // Obsidian itself, not by a fence processor. Add the copy menus there too.
@@ -428,6 +446,17 @@ const FENCE_ALIASES: ReadonlyArray<readonly [string, RenderLanguage]> = [
   ["htm", "html"],
   ["xhtml", "html"],
 ];
+
+function isCursorInFencedCodeBlock(editor: Editor): boolean {
+  const cursor = editor.getCursor();
+  let fences = 0;
+
+  for (let line = 0; line <= cursor.line; line += 1) {
+    if (/^\s*(?:`{3,}|~{3,})/.test(editor.getLine(line))) fences += 1;
+  }
+
+  return fences % 2 === 1;
+}
 
 function extractMathSource(mathEl: HTMLElement): string | null {
   const annotation = mathEl.querySelector<HTMLElement>(

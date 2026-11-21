@@ -29,6 +29,9 @@ by itself.
   hidden in settings.
 - **Outer-page scroll chaining.** When an inner preview reaches its scroll
   boundary, continued scrolling moves the note instead of stopping.
+- **ChatGPT paste conversion.** Pasting into the editor converts `\(inline\)`
+  to `$inline$` and `\[display\]` to a `$$` block equation, while leaving code
+  untouched.
 - **Adjustable LaTeX preview size and width.** Scale compiled LaTeX from 100% to
   400% and choose fit-content or full-width rendering.
 - **Right-click any rendered equation** to copy it as a PNG image or copy its
@@ -101,6 +104,19 @@ E = mc^2
 
 When the cursor is inside a fence in Live Preview, Obsidian shows the normal
 editable source. Move the cursor outside the block to see the embedded preview.
+
+### Pasting from ChatGPT
+
+Pasting ChatGPT text into the editor converts the LaTeX delimiters ChatGPT uses
+to Obsidian's delimiters:
+
+- `\(inline math\)` → `$inline math$`
+- `\[display math\]` → a `$$` display block
+
+The conversion is enabled by default with **Convert ChatGPT math delimiters on
+paste** in settings. It only touches pasted text; existing note content is not
+rewritten. Fenced code blocks, inline code, and already-escaped `\\(` / `\\[`
+delimiters are left unchanged. Pasting directly inside a code block is skipped.
 
 ### Copying rendered equations
 
@@ -217,10 +233,15 @@ good place for macros such as `\newcommand{\R}{\mathbb{R}}`.
 - **Render LaTeX fences** — `latex`, `tex`
 - **Render HTML fences** — `html`, `htm`
 
+### Paste
+
+- **Convert ChatGPT math delimiters on paste** — default on; converts
+  `\(…\)` and `\[…\]` while preserving code blocks and inline code
+
 ### Preview
 
 - **Default view** — rendered or source
-- **Show window toolbar** — language label, source toggle, copy, and fullscreen
+- **Show window toolbar** — language label, fold, source toggle, copy, and fullscreen
 - **LaTeX preview size** — 100% to 400%, default 200%
 - **LaTeX preview width** — fit content or full width; default fit content
 - **Wrap copied equations in an equation environment** — default on; adds

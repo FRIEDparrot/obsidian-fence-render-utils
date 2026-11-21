@@ -16,6 +16,7 @@ export interface FenceRenderSettings extends LatexCompilerSettings {
   wrapEquationCopy: boolean;
   latexPreviewScale: number;
   latexPreviewWidth: LatexPreviewWidth;
+  convertChatGptPaste: boolean;
 }
 
 export const DEFAULT_SETTINGS: FenceRenderSettings = {
@@ -30,6 +31,7 @@ export const DEFAULT_SETTINGS: FenceRenderSettings = {
   wrapEquationCopy: true,
   latexPreviewScale: 200,
   latexPreviewWidth: "fit",
+  convertChatGptPaste: true,
   latexPath: "latex",
   dvisvgmPath: "dvisvgm",
   pdftocairoPath: "pdftocairo",
@@ -81,6 +83,10 @@ export function normalizeSettings(raw: unknown): FenceRenderSettings {
       value.latexPreviewWidth === "full" || value.latexPreviewWidth === "fit"
         ? value.latexPreviewWidth
         : DEFAULT_SETTINGS.latexPreviewWidth,
+    convertChatGptPaste: booleanOr(
+      value.convertChatGptPaste,
+      DEFAULT_SETTINGS.convertChatGptPaste,
+    ),
     latexPath: stringOr(value.latexPath, DEFAULT_SETTINGS.latexPath) || DEFAULT_SETTINGS.latexPath,
     dvisvgmPath:
       stringOr(value.dvisvgmPath, DEFAULT_SETTINGS.dvisvgmPath) || DEFAULT_SETTINGS.dvisvgmPath,

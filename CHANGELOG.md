@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.0
+
+- Added a paste override for ChatGPT-style math delimiters, enabled by default.
+- Pasting `\(inline\)` into the editor converts it to `$inline$`.
+- Pasting `\[display\]` converts it to a `$$` block equation.
+- Fenced code blocks, inline code, and escaped delimiters are left unchanged.
+- Pastes made inside a code block are not converted.
+- Added a settings toggle: **Convert ChatGPT math delimiters on paste**.
+
 ## 1.1.1
 
 - Restored a fold/collapse control in the preview toolbar, so multi-line

@@ -64,6 +64,21 @@ export class FenceRenderSettingTab extends PluginSettingTab {
         }),
       );
 
+    new Setting(containerEl).setName("Paste").setHeading();
+
+    new Setting(containerEl)
+      .setName("Convert ChatGPT math delimiters on paste")
+      .setDesc(
+        "When pasting into the editor, convert \\( … \\) to $ … $ and \\[ … \\] to " +
+          "$$ … $$. Fenced code blocks and inline code are left untouched.",
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.convertChatGptPaste).onChange(async (value) => {
+          this.plugin.settings.convertChatGptPaste = value;
+          await this.plugin.saveSettings();
+        }),
+      );
+
     new Setting(containerEl).setName("Preview").setHeading();
 
     new Setting(containerEl)
@@ -82,7 +97,7 @@ export class FenceRenderSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Show window toolbar")
-      .setDesc("Shows the language label, source toggle, copy, and fullscreen buttons.")
+      .setDesc("Shows the language label, fold, source toggle, copy, and fullscreen buttons.")
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.showToolbar).onChange(async (value) => {
           this.plugin.settings.showToolbar = value;
