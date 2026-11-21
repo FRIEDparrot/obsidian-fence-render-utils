@@ -1,4 +1,5 @@
 import { htmlToMarkdown } from "obsidian";
+import { mathElementToMarkdown } from "./math-source";
 import type {
   TableAlignment,
   TableCell,
@@ -14,7 +15,17 @@ function plainCell(cell: HTMLTableCellElement): TableCell {
 
 function markdownCell(cell: HTMLTableCellElement): string {
   try {
-    return htmlToMarkdown(cell.innerHTML)
+    // MathJax's CHTML output is visual, not Markdown. Recover the original TeX
+    // so table-cell math survives Markdown/LaTeX table copies.
+    const clone = cell.cloneNode(true) as HTMLTableCellElement;
+    for (const mathEl of Array.from(clone.querySelectorAll<HTMLElement>(".math"))) {
+      const math = mathElementToMarkdown(mathEl);
+      if (math) {
+        mathEl.replaceWith(cell.ownerDocument.createTextNode(math));
+      }
+    }
+
+    return htmlToMarkdown(clone.innerHTML)
       .replace(/\r\n?/g, "\n")
       .replace(/\n+/g, "<br>")
       .trim();

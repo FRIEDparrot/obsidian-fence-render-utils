@@ -98,6 +98,31 @@ describe("LaTeX table output", () => {
     );
   });
 
+  it("converts inline Markdown formatting in cells", () => {
+    const output = tableToLatex({
+      headers: [
+        { text: "Bold", markdown: "**Bold**" },
+        { text: "Italic", markdown: "*Italic*" },
+        { text: "Percent", markdown: String.raw`50\%` },
+      ],
+      rows: [
+        [
+          { text: "code", markdown: "`a_b`" },
+          { text: "link", markdown: "[label](https://example.com)" },
+          { text: "plain", markdown: "100%" },
+        ],
+      ],
+      alignments: ["left", "center", "right"],
+    });
+
+    expect(output).toContain(
+      String.raw`\textbf{Bold} & \textit{Italic} & 50\% \\`,
+    );
+    expect(output).toContain(
+      String.raw`\texttt{a\_b} & label & 100\% \\`,
+    );
+  });
+
   it("does not require a body row", () => {
     const output = tableToLatex({
       headers: [{ text: "Only", markdown: "Only" }],

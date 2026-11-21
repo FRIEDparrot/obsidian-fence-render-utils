@@ -9,6 +9,7 @@ import {
 import { LatexCompiler, type ToolchainStatus } from "./compiler";
 import { wrapEquationEnvironment } from "./latex";
 import type { RenderLanguage } from "./language";
+import { extractMathSource } from "./math-source";
 import { convertChatGptMath } from "./paste";
 import {
   copyEquationImage,
@@ -218,16 +219,18 @@ export default class FenceRenderPlugin extends Plugin {
       return;
     }
 
-    // Math wins when the user right-clicks an equation inside a table cell.
-    const mathEl = target.closest<HTMLElement>(".math");
-    if (mathEl) {
-      this.handleMathContextMenu(event, mathEl);
-      return;
-    }
-
+    // A table cell may contain rendered math. Prefer the table menu there so
+    // "Copy table as LaTeX" remains available when right-clicking a formula
+    // inside a Markdown table.
     const tableEl = resolveTable(target, target.ownerDocument);
     if (tableEl) {
       this.handleTableContextMenu(event, tableEl);
+      return;
+    }
+
+    const mathEl = target.closest<HTMLElement>(".math");
+    if (mathEl) {
+      this.handleMathContextMenu(event, mathEl);
       return;
     }
 
@@ -456,19 +459,6 @@ function isCursorInFencedCodeBlock(editor: Editor): boolean {
   }
 
   return fences % 2 === 1;
-}
-
-function extractMathSource(mathEl: HTMLElement): string | null {
-  const annotation = mathEl.querySelector<HTMLElement>(
-    'annotation[encoding="application/x-tex"]',
-  )?.textContent;
-  if (annotation?.trim()) return annotation.trim();
-
-  const mjxMath = mathEl.matches("mjx-math[data-latex]")
-    ? mathEl
-    : mathEl.querySelector<HTMLElement>("mjx-math[data-latex]");
-  const latex = mjxMath?.getAttribute("data-latex");
-  return latex?.trim() || null;
 }
 
 function hideOpenMenus(doc: Document): void {

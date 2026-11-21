@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.2.1
+
+- Fixed table context-menu priority: right-clicking math **inside a table cell**
+  now opens the table menu, so **Copy table as LaTeX** is available there.
+- **Copy table as LaTeX** now converts inline Markdown formatting instead of
+  dropping it:
+  - bold → `\textbf{…}`
+  - italic → `\textit{…}`
+  - inline code → `\texttt{…}`
+  - links → their visible label
+  - escaped characters such as `\%`, `\_`, and `\|`
+  - LaTeX specials and table pipes are escaped safely
+- Table-cell math is recovered from MathJax as its original TeX and preserved
+  as `$…$`.
+- The new Markdown-inline → LaTeX helper is dependency-free.
+
 ## 1.2.0
 
 - Added a paste override for ChatGPT-style math delimiters, enabled by default.

@@ -1,3 +1,5 @@
+import { markdownInlineToLatex } from "./markdown-latex";
+
 export type TableAlignment = "left" | "center" | "right";
 
 export interface TableCell {
@@ -31,36 +33,11 @@ function formatMarkdownCell(cell: TableCell): string {
 }
 
 function formatLatexCell(cell: TableCell): string {
-  const value = (cell.text || cell.markdown)
+  const value = (cell.markdown || cell.text)
     .replace(/\s+/g, " ")
     .trim();
 
-  return value.replace(/[\\&%$#_{}~^]/g, (character) => {
-    switch (character) {
-      case "\\":
-        return "\\textbackslash{}";
-      case "&":
-        return "\\&";
-      case "%":
-        return "\\%";
-      case "$":
-        return "\\$";
-      case "#":
-        return "\\#";
-      case "_":
-        return "\\_";
-      case "{":
-        return "\\{";
-      case "}":
-        return "\\}";
-      case "~":
-        return "\\textasciitilde{}";
-      case "^":
-        return "\\textasciicircum{}";
-      default:
-        return character;
-    }
-  });
+  return markdownInlineToLatex(value);
 }
 
 function columnCount(data: TableData): number {

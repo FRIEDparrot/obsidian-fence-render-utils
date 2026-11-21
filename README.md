@@ -42,7 +42,8 @@ by itself.
 - **Copy equation images** with a white background at high DPI, suitable for
   pasting into Word, PowerPoint, emails, or other notes.
 - **Right-click any rendered Markdown table** to copy only that table as
-  Markdown source or as a complete LaTeX `table`/`tabular` environment.
+  Markdown source or as a complete LaTeX `table`/`tabular` environment with
+  bold, italics, code, links, escaped characters, and inline math converted.
 - **LaTeX packages in settings.** Fences are assumed to be the body of a
   document, so `\usepackage` lines do not need to be repeated. Configure the
   packages and extra preamble once.
@@ -146,16 +147,27 @@ Right-click a rendered Markdown table to open:
 - **Copy table as Markdown** — a pipe table with the same column alignment,
   preserved inline formatting, and escaped `|` characters.
 - **Copy table as LaTeX** — a complete `table` / `tabular` environment with
-  `\hline` rules, column alignment, and escaped LaTeX special characters.
+  `\hline` rules, column alignment, escaped LaTeX special characters, and inline
+  formatting converted to LaTeX.
 
 Only the clicked table is copied. If you select a table and right-click just
 outside it, the table containing the selection is used. Other tables in the same
 note are ignored. In Live Preview these actions are added to Obsidian's normal
-editor context menu; in Reading view a dedicated table menu is shown.
+editor context menu; in Reading view a dedicated table menu is shown. The table
+menu is also used when the right-click lands on a rendered equation inside a
+table cell, so **Copy table as LaTeX** works from math cells too.
 
-Table conversion flattens inline formatting in the LaTeX output. Markdown output
-keeps formatting such as bold, italics, code, and links when Obsidian exposes it
-in the rendered cell.
+Markdown formatting is preserved in the LaTeX output:
+
+- bold → `\textbf{…}`
+- italic → `\textit{…}`
+- inline code → `\texttt{…}`
+- links → their visible label
+- `\%`, `\_`, `\|`, and other escaped characters are kept valid
+- table-cell math is recovered from MathJax and kept as `$…$`
+
+Markdown output keeps formatting such as bold, italics, code, and links when
+Obsidian exposes it in the rendered cell.
 
 ### Preview size and fullscreen
 
