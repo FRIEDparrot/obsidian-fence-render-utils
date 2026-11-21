@@ -44,6 +44,7 @@ by itself.
 - **Right-click any rendered Markdown table** to copy only that table as
   Markdown source or as a complete LaTeX `table`/`tabular` environment with
   bold, italics, code, links, escaped characters, and inline math converted.
+  A **Transpose table** command can swap the full table's rows and columns.
 - **LaTeX packages in settings.** Fences are assumed to be the body of a
   document, so `\usepackage` lines do not need to be repeated. Configure the
   packages and extra preamble once.
@@ -170,6 +171,23 @@ Markdown formatting is preserved in the LaTeX output:
 
 Markdown output keeps formatting such as bold, italics, code, and links when
 Obsidian exposes it in the rendered cell.
+
+### Transposing a table
+
+Place the cursor anywhere inside a Markdown table and run **Transpose Markdown
+table at cursor** from the command palette. In Live Preview, the same action is
+available as **Transpose table** in the table context menu.
+
+The **entire table** is transposed, even if only part of it is selected:
+
+- the first header cell becomes the new first header
+- the original headers become the first column
+- original rows become columns
+- cell Markdown and math are preserved
+- alignment is reset to left because columns and rows swap roles
+
+The command works in Source mode and Live Preview. Reading view is read-only, so
+there is no in-place transpose there.
 
 ### Preview size and fullscreen
 

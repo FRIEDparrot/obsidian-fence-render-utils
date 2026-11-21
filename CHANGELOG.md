@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.3.0
+
+- Added **Transpose table** command and Live Preview table-menu action.
+- Transposes the **full** Markdown table containing the cursor, even when only
+  part of the table is selected.
+- The first header cell becomes the new first header; the original headers
+  become the first column.
+- Transposition resets column alignment to left, as old columns become rows.
+- Keeps inline Markdown and math intact.
+- Works in Source mode and Live Preview; Reading view remains read-only.
+
 ## 1.2.2
 
 - Added table copy actions to **Live Preview when the table is editable

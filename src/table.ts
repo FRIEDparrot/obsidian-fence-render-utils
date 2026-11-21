@@ -23,6 +23,38 @@ function padCells(cells: TableCell[], count: number): TableCell[] {
   return result;
 }
 
+function emptyCell(): TableCell {
+  return { text: "", markdown: "" };
+}
+
+/**
+ * Swap the full table's rows and columns. The first header cell becomes the
+ * first header of the transposed table; original headers become its first
+ * column. Alignment is reset to left because the old columns become rows.
+ */
+export function transposeTable(data: TableData): TableData | null {
+  if (data.rows.length === 0) return null;
+
+  const headers: TableCell[] = [
+    data.headers[0] ?? emptyCell(),
+    ...data.rows.map((row) => row[0] ?? emptyCell()),
+  ];
+
+  const rows: TableCell[][] = [];
+  for (let column = 1; column < data.headers.length; column += 1) {
+    rows.push([
+      data.headers[column] ?? emptyCell(),
+      ...data.rows.map((row) => row[column] ?? emptyCell()),
+    ]);
+  }
+
+  return {
+    headers,
+    rows,
+    alignments: headers.map(() => "left"),
+  };
+}
+
 function formatMarkdownCell(cell: TableCell): string {
   const value = (cell.markdown || cell.text)
     .replace(/\r\n?/g, "\n")

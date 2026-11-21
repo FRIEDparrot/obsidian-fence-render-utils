@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { tableToLatex, tableToMarkdown, type TableData } from "./table";
+import {
+  tableToLatex,
+  tableToMarkdown,
+  transposeTable,
+  type TableData,
+} from "./table";
 
 const data: TableData = {
   headers: [
@@ -21,6 +26,54 @@ const data: TableData = {
   ],
   alignments: ["left", "center", "right"],
 };
+
+describe("Transpose Markdown table", () => {
+  it("swaps headers and body rows", () => {
+    const transposed = transposeTable({
+      headers: [
+        { text: "Name", markdown: "Name" },
+        { text: "A", markdown: "A" },
+        { text: "B", markdown: "B" },
+      ],
+      rows: [
+        [
+          { text: "x", markdown: "x" },
+          { text: "1", markdown: "1" },
+          { text: "2", markdown: "2" },
+        ],
+        [
+          { text: "y", markdown: "y" },
+          { text: "3", markdown: "3" },
+          { text: "4", markdown: "4" },
+        ],
+      ],
+      alignments: ["left", "center", "right"],
+    });
+
+    expect(transposed).not.toBeNull();
+    expect(transposed && tableToMarkdown(transposed)).toBe(
+      [
+        "| Name | x | y |",
+        "| --- | --- | --- |",
+        "| A | 1 | 3 |",
+        "| B | 2 | 4 |",
+      ].join("\n"),
+    );
+  });
+
+  it("returns null when there are no body rows", () => {
+    expect(
+      transposeTable({
+        headers: [
+          { text: "A", markdown: "A" },
+          { text: "B", markdown: "B" },
+        ],
+        rows: [],
+        alignments: ["left", "left"],
+      }),
+    ).toBeNull();
+  });
+});
 
 describe("Markdown table output", () => {
   it("preserves inline Markdown and alignment markers", () => {

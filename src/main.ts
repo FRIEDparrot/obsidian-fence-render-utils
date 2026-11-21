@@ -23,7 +23,12 @@ import {
   normalizeSettings,
   type FenceRenderSettings,
 } from "./settings";
-import { tableToLatex, tableToMarkdown, type TableData } from "./table";
+import {
+  tableToLatex,
+  tableToMarkdown,
+  transposeTable,
+  type TableData,
+} from "./table";
 import { extractTableData, resolveTable } from "./table-dom";
 import { findMarkdownTableAtLine } from "./table-source";
 
@@ -77,30 +82,37 @@ export default class FenceRenderPlugin extends Plugin {
     );
     this.registerEvent(
       this.app.workspace.on("editor-menu", (menu, editor, view) => {
-        const table = this.pendingTableContext;
-        this.pendingTableContext = null;
-        if (table && table.expiresAt >= Date.now()) {
-          this.pendingMathContext = null;
-          menu.addSeparator();
-          this.addTableMenuItems(menu, table.data, table.doc);
-          return;
-        }
-
         // In Live Preview a table is often plain CodeMirror source rather than
-        // a rendered <table>. Parse the table at the cursor so the copy actions
-        // are available there too.
+        // a rendered <table>. Parse the table at the cursor so copy/transpose
+        // actions are available there too.
         const lines = Array.from(
           { length: editor.lineCount() },
           (_value, line) => editor.getLine(line),
         );
         const sourceTable = findMarkdownTableAtLine(lines, editor.getCursor().line);
+        const transpose = () => this.transposeTableInEditor(editor);
+
+        const table = this.pendingTableContext;
+        this.pendingTableContext = null;
+        if (table && table.expiresAt >= Date.now()) {
+          this.pendingMathContext = null;
+          menu.addSeparator();
+          this.addTableMenuItems(
+            menu,
+            table.data,
+            table.doc,
+            sourceTable ? transpose : undefined,
+          );
+          return;
+        }
+
         if (sourceTable) {
           this.pendingMathContext = null;
           const doc =
             (view as { containerEl?: HTMLElement }).containerEl?.ownerDocument ??
             window.document;
           menu.addSeparator();
-          this.addTableMenuItems(menu, sourceTable.data, doc);
+          this.addTableMenuItems(menu, sourceTable.data, doc, transpose);
           return;
         }
 
@@ -135,6 +147,39 @@ export default class FenceRenderPlugin extends Plugin {
         new Notice("Fence Render Utils: LaTeX cache cleared.");
       },
     });
+
+    this.addCommand({
+      id: "transpose-markdown-table",
+      name: "Transpose Markdown table at cursor",
+      editorCallback: (editor) => this.transposeTableInEditor(editor),
+    });
+  }
+
+  private transposeTableInEditor(editor: Editor): void {
+    const lines = Array.from(
+      { length: editor.lineCount() },
+      (_value, line) => editor.getLine(line),
+    );
+    const table = findMarkdownTableAtLine(lines, editor.getCursor().line);
+
+    if (!table) {
+      new Notice("Place the cursor inside a Markdown table first.");
+      return;
+    }
+
+    const transposed = transposeTable(table.data);
+    if (!transposed) {
+      new Notice("This table has no body rows to transpose.");
+      return;
+    }
+
+    editor.replaceRange(
+      tableToMarkdown(transposed),
+      { line: table.startLine, ch: 0 },
+      { line: table.endLine, ch: lines[table.endLine].length },
+    );
+    editor.setCursor({ line: table.startLine, ch: 0 });
+    new Notice("Table transposed.");
   }
 
   onunload(): void {
@@ -355,7 +400,12 @@ export default class FenceRenderPlugin extends Plugin {
     }
   }
 
-  private addTableMenuItems(menu: Menu, data: TableData, doc: Document): void {
+  private addTableMenuItems(
+    menu: Menu,
+    data: TableData,
+    doc: Document,
+    onTranspose?: () => void,
+  ): void {
     menu.addItem((item) =>
       item
         .setTitle("Copy table as Markdown")
@@ -372,6 +422,15 @@ export default class FenceRenderPlugin extends Plugin {
           void this.copyTable(tableToLatex(data), doc, "LaTeX");
         }),
     );
+
+    if (onTranspose) {
+      menu.addItem((item) =>
+        item
+          .setTitle("Transpose table")
+          .setIcon("arrow-left-right")
+          .onClick(onTranspose),
+      );
+    }
   }
 
   private async copyTable(
