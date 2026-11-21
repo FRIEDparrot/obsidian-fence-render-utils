@@ -152,10 +152,12 @@ Right-click a rendered Markdown table to open:
 
 Only the clicked table is copied. If you select a table and right-click just
 outside it, the table containing the selection is used. Other tables in the same
-note are ignored. In Live Preview these actions are added to Obsidian's normal
-editor context menu; in Reading view a dedicated table menu is shown. The table
-menu is also used when the right-click lands on a rendered equation inside a
-table cell, so **Copy table as LaTeX** works from math cells too.
+note are ignored. In Reading view a dedicated table menu is shown. In Live
+Preview the actions are added to Obsidian's normal editor context menu, both for
+a rendered table and for a table that is currently in editable Markdown-source
+form. The table menu is also used when the right-click lands on a rendered
+equation inside a table cell, so **Copy table as LaTeX** works from math cells
+too.
 
 Markdown formatting is preserved in the LaTeX output:
 

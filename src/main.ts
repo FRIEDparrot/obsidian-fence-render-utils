@@ -25,6 +25,7 @@ import {
 } from "./settings";
 import { tableToLatex, tableToMarkdown, type TableData } from "./table";
 import { extractTableData, resolveTable } from "./table-dom";
+import { findMarkdownTableAtLine } from "./table-source";
 
 export default class FenceRenderPlugin extends Plugin {
   settings: FenceRenderSettings = { ...DEFAULT_SETTINGS };
@@ -75,12 +76,31 @@ export default class FenceRenderPlugin extends Plugin {
       }),
     );
     this.registerEvent(
-      this.app.workspace.on("editor-menu", (menu) => {
+      this.app.workspace.on("editor-menu", (menu, editor, view) => {
         const table = this.pendingTableContext;
         this.pendingTableContext = null;
         if (table && table.expiresAt >= Date.now()) {
+          this.pendingMathContext = null;
           menu.addSeparator();
           this.addTableMenuItems(menu, table.data, table.doc);
+          return;
+        }
+
+        // In Live Preview a table is often plain CodeMirror source rather than
+        // a rendered <table>. Parse the table at the cursor so the copy actions
+        // are available there too.
+        const lines = Array.from(
+          { length: editor.lineCount() },
+          (_value, line) => editor.getLine(line),
+        );
+        const sourceTable = findMarkdownTableAtLine(lines, editor.getCursor().line);
+        if (sourceTable) {
+          this.pendingMathContext = null;
+          const doc =
+            (view as { containerEl?: HTMLElement }).containerEl?.ownerDocument ??
+            window.document;
+          menu.addSeparator();
+          this.addTableMenuItems(menu, sourceTable.data, doc);
           return;
         }
 

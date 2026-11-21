@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.2
+
+- Added table copy actions to **Live Preview when the table is editable
+  Markdown source**, not only when Obsidian is showing a rendered `<table>`.
+- Added a Markdown-table parser for the table at the editor cursor. It handles
+  escaped pipes, pipes in inline code, pipes inside `$…$` math, and column
+  alignment.
+- Right-clicking a rendered table still uses the existing Live Preview/Reading
+  view table menu.
+
 ## 1.2.1
 
 - Fixed table context-menu priority: right-clicking math **inside a table cell**
