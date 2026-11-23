@@ -58,13 +58,22 @@ export default class FenceRenderPlugin extends Plugin {
 
     this.registerEvent(
       this.app.workspace.on("editor-paste", (event, editor) => {
-        if (!this.settings.convertChatGptPaste || event.defaultPrevented) return;
+        if (
+          (!this.settings.convertChatGptPaste &&
+            !this.settings.autoFormatMathScripts) ||
+          event.defaultPrevented
+        ) {
+          return;
+        }
         if (isCursorInFencedCodeBlock(editor)) return;
 
         const text = event.clipboardData?.getData("text/plain");
         if (!text) return;
 
-        const converted = convertChatGptMath(text);
+        const converted = convertChatGptMath(text, {
+          convertDelimiters: this.settings.convertChatGptPaste,
+          formatScripts: this.settings.autoFormatMathScripts,
+        });
         if (converted === text) return;
 
         event.preventDefault();

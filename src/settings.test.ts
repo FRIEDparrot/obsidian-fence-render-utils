@@ -9,6 +9,7 @@ describe("settings normalization", () => {
     expect(DEFAULT_SETTINGS.latexPreviewScale).toBe(200);
     expect(DEFAULT_SETTINGS.latexPreviewWidth).toBe("fit");
     expect(DEFAULT_SETTINGS.convertChatGptPaste).toBe(true);
+    expect(DEFAULT_SETTINGS.autoFormatMathScripts).toBe(true);
   });
 
   it("keeps valid values and clamps numbers", () => {
@@ -23,6 +24,7 @@ describe("settings normalization", () => {
       latexPreviewScale: 9999,
       latexPreviewWidth: "full",
       convertChatGptPaste: false,
+      autoFormatMathScripts: false,
     });
 
     expect(settings.renderMarkdown).toBe(false);
@@ -35,6 +37,7 @@ describe("settings normalization", () => {
     expect(settings.latexPreviewScale).toBe(400);
     expect(settings.latexPreviewWidth).toBe("full");
     expect(settings.convertChatGptPaste).toBe(false);
+    expect(settings.autoFormatMathScripts).toBe(false);
   });
 
   it("clamps low preview scales and rejects unknown widths", () => {

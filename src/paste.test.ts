@@ -63,4 +63,37 @@ describe("ChatGPT math paste conversion", () => {
     const input = "No math here.";
     expect(convertChatGptMath(input)).toBe(input);
   });
+
+  it("formats scripts in converted display math", () => {
+    const input = String.raw`\[
+r^k + \mathbf r_k
+\]`;
+    expect(convertChatGptMath(input, { formatScripts: true })).toBe(
+      String.raw`$$
+r^{k} + \mathbf r_{k}
+$$`,
+    );
+  });
+
+  it("formats existing dollar math when enabled", () => {
+    const input = String.raw`Inline $r^k$ and block $$x_i$$.`;
+    expect(convertChatGptMath(input, { formatScripts: true })).toBe(
+      String.raw`Inline $r^{k}$ and block $$x_{i}$$.`,
+    );
+  });
+
+  it("can disable script formatting while converting delimiters", () => {
+    const input = String.raw`\(r^k\)`;
+    expect(convertChatGptMath(input, { formatScripts: false })).toBe("$r^k$");
+  });
+
+  it("can format dollar math without converting delimiters", () => {
+    const input = String.raw`\(r^k\) and $x_i$`;
+    expect(
+      convertChatGptMath(input, {
+        convertDelimiters: false,
+        formatScripts: true,
+      }),
+    ).toBe(String.raw`\(r^k\) and $x_{i}$`);
+  });
 });

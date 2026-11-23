@@ -31,7 +31,8 @@ by itself.
   boundary, continued scrolling moves the note instead of stopping.
 - **ChatGPT paste conversion.** Pasting into the editor converts `\(inline\)`
   to `$inline$` and `\[display\]` to a `$$` block equation, while leaving code
-  untouched.
+  untouched. Optional auto-formatting wraps ungrouped superscripts and
+  subscripts such as `r^k` → `r^{k}`.
 - **Adjustable LaTeX preview size and width.** Scale compiled LaTeX from 100% to
   400% and choose fit-content or full-width rendering.
 - **Right-click any rendered equation** to copy it as a PNG image or copy its
@@ -119,6 +120,18 @@ The conversion is enabled by default with **Convert ChatGPT math delimiters on
 paste** in settings. It only touches pasted text; existing note content is not
 rewritten. Fenced code blocks, inline code, and already-escaped `\\(` / `\\[`
 delimiters are left unchanged. Pasting directly inside a code block is skipped.
+
+**Auto-format super/subscripts in pasted equations** is also on by default. It
+adds braces around ungrouped script arguments in both inline and display math,
+including equations converted from ChatGPT delimiters:
+
+- `r^k` → `r^{k}`
+- `r_k` → `r_{k}`
+- `x^\frac{1}{2}` → `x^{\frac{1}{2}}`
+- `\lVert\mathbf r'_k\rVert_1` → `\lVert\mathbf r'_{k}\rVert_{1}`
+
+Already grouped scripts such as `r^{k}`, `r_{k}`, and `x^{-1}` are unchanged.
+Turn the toggle off to paste the source exactly as received.
 
 ### Copying rendered equations
 
@@ -269,6 +282,8 @@ good place for macros such as `\newcommand{\R}{\mathbb{R}}`.
 
 - **Convert ChatGPT math delimiters on paste** — default on; converts
   `\(…\)` and `\[…\]` while preserving code blocks and inline code
+- **Auto-format super/subscripts in pasted equations** — default on; wraps
+  ungrouped `^` / `_` arguments in braces
 
 ### Preview
 

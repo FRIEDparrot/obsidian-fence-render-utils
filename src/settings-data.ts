@@ -17,6 +17,7 @@ export interface FenceRenderSettings extends LatexCompilerSettings {
   latexPreviewScale: number;
   latexPreviewWidth: LatexPreviewWidth;
   convertChatGptPaste: boolean;
+  autoFormatMathScripts: boolean;
 }
 
 export const DEFAULT_SETTINGS: FenceRenderSettings = {
@@ -32,6 +33,7 @@ export const DEFAULT_SETTINGS: FenceRenderSettings = {
   latexPreviewScale: 200,
   latexPreviewWidth: "fit",
   convertChatGptPaste: true,
+  autoFormatMathScripts: true,
   latexPath: "latex",
   dvisvgmPath: "dvisvgm",
   pdftocairoPath: "pdftocairo",
@@ -86,6 +88,10 @@ export function normalizeSettings(raw: unknown): FenceRenderSettings {
     convertChatGptPaste: booleanOr(
       value.convertChatGptPaste,
       DEFAULT_SETTINGS.convertChatGptPaste,
+    ),
+    autoFormatMathScripts: booleanOr(
+      value.autoFormatMathScripts,
+      DEFAULT_SETTINGS.autoFormatMathScripts,
     ),
     latexPath: stringOr(value.latexPath, DEFAULT_SETTINGS.latexPath) || DEFAULT_SETTINGS.latexPath,
     dvisvgmPath:

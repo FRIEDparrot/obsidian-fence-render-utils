@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.4.0
+
+- Added **Auto-format super/subscripts in pasted equations** (enabled by
+  default, with a toggle).
+- During paste, ungrouped script arguments are wrapped in braces:
+  - `r^k` → `r^{k}`
+  - `r_k` → `r_{k}`
+  - `x^\frac{1}{2}` → `x^{\frac{1}{2}}`
+- Works for ChatGPT `\(…\)`/`\[…\]` conversions and for existing `$…$` /
+  `$$…$$` equations in the pasted text.
+- Existing `r^{k}` / `r_{k}` groups are left unchanged; code blocks, inline
+  code, and escaped underscores are ignored.
+- Added the same toggle under **Settings → Fence Render Utils → Paste**.
+
 ## 1.3.0
 
 - Added **Transpose table** command and Live Preview table-menu action.

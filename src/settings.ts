@@ -79,6 +79,19 @@ export class FenceRenderSettingTab extends PluginSettingTab {
         }),
       );
 
+    new Setting(containerEl)
+      .setName("Auto-format super/subscripts in pasted equations")
+      .setDesc(
+        "Add braces to ungrouped math scripts while pasting: r^k becomes r^{k}, " +
+          "r_k becomes r_{k}, in both $…$ and $$…$$ equations.",
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.autoFormatMathScripts).onChange(async (value) => {
+          this.plugin.settings.autoFormatMathScripts = value;
+          await this.plugin.saveSettings();
+        }),
+      );
+
     new Setting(containerEl).setName("Preview").setHeading();
 
     new Setting(containerEl)
