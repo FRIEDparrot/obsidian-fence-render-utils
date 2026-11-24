@@ -1,5 +1,5 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
-import { DEFAULT_LATEX_PACKAGES } from "./latex";
+import { DEFAULT_LATEX_PACKAGES, latexPackageIssues } from "./latex";
 import { DEFAULT_SETTINGS } from "./settings-data";
 import type FenceRenderPlugin from "./main";
 
@@ -303,6 +303,24 @@ export class FenceRenderSettingTab extends PluginSettingTab {
         text.inputEl.rows = 9;
         text.inputEl.addClass("fence-render-settings-textarea");
       });
+
+    new Setting(containerEl)
+      .setName("Check package conflicts")
+      .setDesc(
+        "Checks known-bad combinations before compiling, such as loading both " +
+          "algorithmic and algpseudocode.",
+      )
+      .addButton((button) =>
+        button.setButtonText("Check").onClick(() => {
+          const issues = latexPackageIssues(this.plugin.settings.latexPackages);
+          new Notice(
+            issues.length > 0
+              ? issues.join("\n\n")
+              : "No known LaTeX package conflicts detected.",
+            10_000,
+          );
+        }),
+      );
 
     new Setting(containerEl)
       .setName("Extra preamble")

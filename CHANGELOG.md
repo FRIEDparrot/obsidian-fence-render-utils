@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.5.0
+
+- Added support for `algorithm` / `algorithmic` fences:
+  - normalizes float placement to `[H]` inside the standalone document
+  - adds `float=true` to the standalone class
+  - automatically adds `algorithm`, `algpseudocode`, and `float` when a fence
+    needs them
+- Added `algorithm` and `algpseudocode` to the default package list.
+- Added a package-conflict preflight check. Loading both `algorithmic` and
+  `algpseudocode` is rejected with an actionable error instead of a confusing
+  TeX failure.
+- Added **Check package conflicts** under the LaTeX settings.
+- Explained the prose compile failure: conflicting algorithm packages were
+  loaded before the prose body, so removing `algorithmic` (keeping
+  `algpseudocode`) fixes it.
+
 ## 1.4.0
 
 - Added **Auto-format super/subscripts in pasted equations** (enabled by

@@ -3,7 +3,11 @@ import { createHash } from "node:crypto";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { buildLatexDocument, summarizeLatexFailure } from "./latex";
+import {
+  buildLatexDocument,
+  latexPackageIssues,
+  summarizeLatexFailure,
+} from "./latex";
 
 export interface LatexCompilerSettings {
   latexPath: string;
@@ -160,6 +164,16 @@ export class LatexCompiler {
     options: LatexCompileOptions = {},
   ): Promise<LatexCompileResult> {
     const settings = { ...this.getSettings() };
+    const packageIssues = latexPackageIssues(settings.latexPackages);
+    if (packageIssues.length > 0) {
+      return {
+        ok: false,
+        error: packageIssues.join("\n\n"),
+        durationMs: 0,
+        cached: false,
+      };
+    }
+
     const built = buildLatexDocument(source, {
       packages: settings.latexPackages,
       preamble: settings.latexPreamble,

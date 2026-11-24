@@ -4,12 +4,56 @@ import {
   extractDocumentBody,
   formatPackageLines,
   isEquationSourceForCopy,
+  latexPackageIssues,
   looksLikeBareMath,
   parsePackageList,
   summarizeLatexFailure,
   wrapBareMath,
   wrapEquationEnvironment,
 } from "./latex";
+
+describe("LaTeX package conflicts", () => {
+  it("rejects algorithmic together with algpseudocode", () => {
+    const issues = latexPackageIssues("amsmath\nalgorithmic\nalgpseudocode");
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toContain("algorithmic");
+    expect(issues[0]).toContain("algpseudocode");
+  });
+
+  it("accepts algorithmic alone and algpseudocode alone", () => {
+    expect(latexPackageIssues("algorithm\nalgorithmic")).toEqual([]);
+    expect(latexPackageIssues("algorithm\nalgpseudocode")).toEqual([]);
+  });
+
+  it("auto-adds algorithm packages and the float option", () => {
+    const source = [
+      "\\begin{algorithm}[t]",
+      "\\caption{Test}",
+      "\\begin{algorithmic}[1]",
+      "\\State $x\\gets 1$",
+      "\\end{algorithmic}",
+      "\\end{algorithm}",
+    ].join("\n");
+
+    const result = buildLatexDocument(source, { packages: "", preamble: "" });
+    expect(result.document).toContain("float=true");
+    expect(result.packageList).toContain("algorithm");
+    expect(result.packageList).toContain("algpseudocode");
+    expect(result.packageList).toContain("float");
+    expect(result.document).toContain("\\usepackage{algorithm}");
+    expect(result.document).toContain("\\usepackage{algpseudocode}");
+    expect(result.document).toContain("\\begin{algorithm}[H]");
+  });
+
+  it("does not auto-add algorithm packages for prose", () => {
+    const result = buildLatexDocument("A prose paragraph.", {
+      packages: "",
+      preamble: "",
+    });
+    expect(result.packageList).not.toContain("algorithm");
+    expect(result.packageList).not.toContain("algpseudocode");
+  });
+});
 
 describe("LaTeX package parsing", () => {
   it("accepts names, commas, and explicit usepackage lines", () => {
@@ -40,7 +84,7 @@ describe("LaTeX document wrapping", () => {
     expect(result.mathWrapped).toBe(true);
     expect(result.packageList).toEqual(["amsmath", "bm"]);
     expect(result.document).toContain(
-      "\\documentclass[border=4pt,varwidth=true,12pt]{standalone}",
+      "\\documentclass[border=4pt,varwidth=true,12pt,float=true]{standalone}",
     );
     expect(result.document).toContain("\\usepackage{amsmath}");
     expect(result.document).toContain("\\usepackage{bm}");

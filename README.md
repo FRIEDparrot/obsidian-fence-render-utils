@@ -228,7 +228,7 @@ instead of rendering an empty body.
 Each fence is wrapped like this:
 
 ```latex
-\documentclass[border=4pt,varwidth=true,12pt]{standalone}
+\documentclass[border=4pt,varwidth=true,12pt,float=true]{standalone}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 % packages from settings
@@ -245,6 +245,9 @@ Each fence is wrapped like this:
 - Fences that already contain `$…$`, `\[…\]`, `equation`, `align`, or similar
   environments are compiled as written.
 - Prose and section commands such as `\section` are compiled as text.
+- `algorithm` floats are supported. Their placement is normalized to `[H]`
+  inside the standalone document, with `float=true` so the algorithm is kept on
+  the page and cropped.
 - Full documents are compiled as-is; only the first page is currently shown.
 - `\includegraphics` and `\input` that refer to files outside the temporary
   compile directory are not copied into that directory. Keep fences
@@ -252,7 +255,8 @@ Each fence is wrapped like this:
 
 #### Packages and preamble
 
-The default package list is intentionally small:
+The default package list includes the common math packages and the algorithm
+packages:
 
 ```text
 amsmath
@@ -264,11 +268,38 @@ xcolor
 bm
 booktabs
 array
+algorithm
+algpseudocode
 ```
 
 Add one package per line, comma-separated packages, or a full `\usepackage`
 line. The **Extra preamble** field is inserted before `\begin{document}` and is a
 good place for macros such as `\newcommand{\R}{\mathbb{R}}`.
+
+### Algorithms and package conflicts
+
+Fences using `algorithm` and `algorithmic` are compiled with `algpseudocode`.
+Do **not** load both `algorithmic` and `algpseudocode`: both define the
+`algorithmic` environment, and the resulting conflict can make even unrelated
+prose fences fail with a confusing TeX error.
+
+Use one of:
+
+```text
+algorithm
+algpseudocode
+```
+
+or:
+
+```text
+algorithm
+algorithmic
+```
+
+The plugin automatically adds `algorithm`, `algpseudocode`, and `float` when a
+fence needs them. If you keep a custom package list, use **Check package
+conflicts** under the LaTeX settings to validate it before compiling.
 
 ## Settings
 
@@ -314,6 +345,8 @@ good place for macros such as `\newcommand{\R}{\mathbb{R}}`.
 - **Auto-install missing MiKTeX packages** — default on; passes
   `--enable-installer` when MiKTeX is detected
 - **Packages** — package list described above
+- **Check package conflicts** — validates known-bad combinations such as
+  `algorithmic` + `algpseudocode`
 - **Extra preamble** — macros and formatting commands
 - **Compile timeout** — seconds per process
 

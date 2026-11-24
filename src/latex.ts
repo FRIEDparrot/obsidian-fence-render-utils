@@ -8,6 +8,8 @@ export const DEFAULT_LATEX_PACKAGES = [
   "bm",
   "booktabs",
   "array",
+  "algorithm",
+  "algpseudocode",
 ].join("\n");
 
 export interface LatexDocumentOptions {
@@ -618,6 +620,84 @@ export function formatPackageLines(packages: string[]): string {
   return packages.map((entry) => (entry.startsWith("\\usepackage") ? entry : `\\usepackage{${entry}}`)).join("\n");
 }
 
+function packageNames(packages: string): Set<string> {
+  const names = new Set<string>();
+
+  for (const entry of parsePackageList(packages)) {
+    const explicit = entry.match(/^\\usepackage(?:\[[^\]]*\])?\{([^}]+)\}/);
+    if (!explicit) {
+      names.add(entry.trim());
+      continue;
+    }
+
+    for (const name of explicit[1].split(",")) {
+      const cleaned = name.trim();
+      if (cleaned) names.add(cleaned);
+    }
+  }
+
+  return names;
+}
+
+function requiredPackages(
+  source: string,
+  existing: Set<string>,
+): string[] {
+  const environments = environmentNames(source);
+  const required: string[] = [];
+
+  if (environments.includes("algorithm")) {
+    if (!existing.has("algorithm")) required.push("algorithm");
+    if (!existing.has("float")) required.push("float");
+  }
+
+  if (
+    environments.includes("algorithmic") &&
+    !existing.has("algorithmic") &&
+    !existing.has("algpseudocode") &&
+    !existing.has("algorithmicx")
+  ) {
+    required.push("algpseudocode");
+  }
+
+  return required;
+}
+
+/**
+ * `standalone` puts its body in a box, so ordinary float placement such as
+ * `\begin{algorithm}[t]` raises "Not in outer par mode". The `float` package's
+ * `[H]` placement keeps the algorithm on the page and lets standalone crop it.
+ */
+function normalizeAlgorithmFloats(source: string): string {
+  return source.replace(
+    /\\begin\s*\{algorithm\}(\s*\[[^\]]*\])?/g,
+    "\\begin{algorithm}[H]",
+  );
+}
+
+/**
+ * Check package combinations that are known to fail before LaTeX runs. The
+ * classic example is loading both `algorithmic` and `algpseudocode`; both
+ * define the same `algorithmic` environment.
+ */
+export function latexPackageIssues(packages: string): string[] {
+  const names = packageNames(packages);
+  const issues: string[] = [];
+
+  if (
+    names.has("algorithmic") &&
+    (names.has("algpseudocode") || names.has("algorithmicx"))
+  ) {
+    issues.push(
+      "Remove either `algorithmic` or `algpseudocode` from the package list. " +
+        "Both define the `algorithmic` environment; use `algpseudocode` for " +
+        "`\\State`, `\\For`, and the other commands in the algorithm example.",
+    );
+  }
+
+  return issues;
+}
+
 export function isFullLatexDocument(source: string): boolean {
   return /\\documentclass\b/.test(source);
 }
@@ -637,7 +717,6 @@ export function buildLatexDocument(
 ): LatexDocumentInfo {
   const body = source.replace(/\r\n/g, "\n").trim();
   const packages = parsePackageList(options.packages);
-  const packageLines = formatPackageLines(packages);
   const preamble = options.preamble.trim();
 
   if (isFullLatexDocument(body)) {
@@ -652,6 +731,14 @@ export function buildLatexDocument(
   // If someone pasted a document body without a class, don't nest documents.
   const extracted = extractDocumentBody(body);
   const rawContent = extracted ?? body;
+  const existingPackages = packageNames(options.packages);
+  for (const required of requiredPackages(rawContent, existingPackages)) {
+    if (!existingPackages.has(required)) {
+      packages.push(required);
+      existingPackages.add(required);
+    }
+  }
+  const packageLines = formatPackageLines(packages);
   const alreadyDelimited =
     /^\s*(?:\$|\\\[|\\\()/.test(rawContent) ||
     environmentNames(rawContent).some((name) =>
@@ -660,10 +747,12 @@ export function buildLatexDocument(
   const mathWrapped = options.forceMath
     ? !alreadyDelimited
     : options.wrapMath !== false && looksLikeBareMath(rawContent);
-  const content = mathWrapped ? wrapBareMath(rawContent) : rawContent;
+  const content = normalizeAlgorithmFloats(
+    mathWrapped ? wrapBareMath(rawContent) : rawContent,
+  );
 
   const sections = [
-    "\\documentclass[border=4pt,varwidth=true,12pt]{standalone}",
+    "\\documentclass[border=4pt,varwidth=true,12pt,float=true]{standalone}",
     "\\usepackage[utf8]{inputenc}",
     "\\usepackage[T1]{fontenc}",
   ];

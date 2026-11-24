@@ -61,6 +61,43 @@ describe.skipIf(!runIntegration)("LaTeX compiler integration", () => {
   );
 
   it(
+    "compiles an algorithm float",
+    async () => {
+      const compiler = new LatexCompiler(() => settings);
+      const result = await compiler.compile(
+        [
+          "\\begin{algorithm}[t]",
+          "    \\caption{Dynamic Surface Compatibility  Grouping}",
+          "    \\label{alg:dynamic-surface-grouping}",
+          "    \\begin{algorithmic}[1]",
+          "        \\State $K\\gets 0$",
+          "        \\For{$i=1,\\ldots,N_S$}",
+          "        \\State $k\\gets$ index of the first eligible group,",
+          "        or $K+1$ if none exists",
+          "        \\If{$k=K+1$}",
+          "        \\State $K\\gets K+1$",
+          "        \\State $G_K\\gets\\{i\\}$, $\\mathbf r_K\\gets\\mathbf b_i$",
+          "        \\Else",
+          "        \\State $G_k\\gets G_k\\cup\\{i\\}$",
+          "        \\State $\\mathbf r_k\\gets\\mathbf r_k\\land\\mathbf b_i$",
+          "        \\EndIf",
+          "        \\EndFor",
+          "        \\State $A^\\ast_{k\\ell}\\gets",
+          "        \\bigwedge_{j\\in G_\\ell}(\\mathbf r_k)_j$",
+          "        for all $k,\\ell\\in\\{1,\\ldots,K\\}$",
+          "        \\State \\Return $\\{G_k\\}_{k=1}^{K}$,",
+          "        $\\{\\mathbf r_k\\}_{k=1}^{K}$, $A^\\ast$",
+          "    \\end{algorithmic}",
+          "\\end{algorithm}",
+        ].join("\n"),
+      );
+      expect(result.ok, result.error).toBe(true);
+      expect(result.svg).toContain("<svg");
+    },
+    180_000,
+  );
+
+  it(
     "leaves a complete document untouched",
     async () => {
       const compiler = new LatexCompiler(() => settings);
