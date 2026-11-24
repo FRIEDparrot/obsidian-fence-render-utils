@@ -30,6 +30,7 @@ interface WindowOptions {
   copySourceText?: string;
   latexScale?: number;
   latexWidth?: LatexPreviewWidth;
+  markdownFontSize?: number;
 }
 
 /**
@@ -85,6 +86,9 @@ export class FenceWindow {
 
     const preview = this.doc.createElement("div");
     preview.className = `fence-render-preview fence-render-preview--${options.language} markdown-rendered`;
+    if (options.language === "markdown" && options.markdownFontSize) {
+      preview.style.fontSize = `${options.markdownFontSize}px`;
+    }
     this.preview = preview;
 
     const sourcePane = this.doc.createElement("div");
@@ -623,6 +627,7 @@ function createWindow(
     copySourceText,
     latexScale: plugin.settings.latexPreviewScale / 100,
     latexWidth: plugin.settings.latexPreviewWidth,
+    markdownFontSize: plugin.settings.markdownPreviewFontSize,
   });
 
   if (language === "latex" && plugin.settings.latexInvertDark) {

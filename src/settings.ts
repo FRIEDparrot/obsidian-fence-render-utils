@@ -119,6 +119,20 @@ export class FenceRenderSettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
+      .setName("Markdown preview font size")
+      .setDesc("Font size in pixels for rendered Markdown fences.")
+      .addSlider((slider) =>
+        slider
+          .setLimits(10, 30, 1)
+          .setValue(this.plugin.settings.markdownPreviewFontSize)
+          .setDynamicTooltip()
+          .onChange(async (value) => {
+            this.plugin.settings.markdownPreviewFontSize = value;
+            await this.plugin.saveSettings();
+          }),
+      );
+
+    new Setting(containerEl)
       .setName("LaTeX preview size")
       .setDesc(
         "Scales the compiled LaTeX image. 100% is the natural size; increase it for easier review.",

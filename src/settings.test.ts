@@ -8,6 +8,7 @@ describe("settings normalization", () => {
     expect(DEFAULT_SETTINGS.wrapEquationCopy).toBe(true);
     expect(DEFAULT_SETTINGS.latexPreviewScale).toBe(200);
     expect(DEFAULT_SETTINGS.latexPreviewWidth).toBe("fit");
+    expect(DEFAULT_SETTINGS.markdownPreviewFontSize).toBe(16);
     expect(DEFAULT_SETTINGS.convertChatGptPaste).toBe(true);
     expect(DEFAULT_SETTINGS.autoFormatMathScripts).toBe(true);
   });
@@ -23,6 +24,7 @@ describe("settings normalization", () => {
       wrapEquationCopy: false,
       latexPreviewScale: 9999,
       latexPreviewWidth: "full",
+      markdownPreviewFontSize: 99,
       convertChatGptPaste: false,
       autoFormatMathScripts: false,
     });
@@ -36,6 +38,7 @@ describe("settings normalization", () => {
     expect(settings.wrapEquationCopy).toBe(false);
     expect(settings.latexPreviewScale).toBe(400);
     expect(settings.latexPreviewWidth).toBe("full");
+    expect(settings.markdownPreviewFontSize).toBe(30);
     expect(settings.convertChatGptPaste).toBe(false);
     expect(settings.autoFormatMathScripts).toBe(false);
   });

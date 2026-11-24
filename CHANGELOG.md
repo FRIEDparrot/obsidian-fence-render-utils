@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.0
+
+- Added **Markdown preview font size** (10–30 px, default 16 px).
+- Applies to rendered Markdown fence previews, including fullscreen and
+  nested Markdown content.
+- The source-code pane keeps its normal code font size.
+- Settings are applied to open previews immediately after saving.
+- Added the control under **Settings → Fence Render Utils → Preview**.
+
 ## 1.5.0
 
 - Added support for `algorithm` / `algorithmic` fences:

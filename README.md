@@ -33,8 +33,9 @@ by itself.
   to `$inline$` and `\[display\]` to a `$$` block equation, while leaving code
   untouched. Optional auto-formatting wraps ungrouped superscripts and
   subscripts such as `r^k` → `r^{k}`.
-- **Adjustable LaTeX preview size and width.** Scale compiled LaTeX from 100% to
-  400% and choose fit-content or full-width rendering.
+- **Adjustable preview sizes.** Set the rendered Markdown font size from 10 to
+  30 px, and scale compiled LaTeX from 100% to 400% with fit-content or
+  full-width rendering.
 - **Right-click any rendered equation** to copy it as a PNG image or copy its
   LaTeX source. This works for both fenced LaTeX previews and normal
   `$$…$$` / `$…$` Markdown equations.
@@ -204,9 +205,11 @@ there is no in-place transpose there.
 
 ### Preview size and fullscreen
 
-Compiled LaTeX has two review controls in **Settings → Fence Render Utils →
-Preview**:
+Rendered Markdown and compiled LaTeX have review controls in **Settings → Fence
+Render Utils → Preview**:
 
+- **Markdown preview font size** — 10–30 px; default 16 px. This affects
+  rendered Markdown fences, not the source-code pane.
 - **LaTeX preview size** — scales the equation from 100% to 400%; default 200%
 - **LaTeX preview width** — **Fit content** keeps the natural width at that
   scale, while **Full width** stretches the SVG to the note width
@@ -320,6 +323,7 @@ conflicts** under the LaTeX settings to validate it before compiling.
 
 - **Default view** — rendered or source
 - **Show window toolbar** — language label, fold, source toggle, copy, and fullscreen
+- **Markdown preview font size** — 10–30 px, default 16 px
 - **LaTeX preview size** — 100% to 400%, default 200%
 - **LaTeX preview width** — fit content or full width; default fit content
 - **Wrap copied equations in an equation environment** — default on; adds

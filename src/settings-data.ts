@@ -16,6 +16,7 @@ export interface FenceRenderSettings extends LatexCompilerSettings {
   wrapEquationCopy: boolean;
   latexPreviewScale: number;
   latexPreviewWidth: LatexPreviewWidth;
+  markdownPreviewFontSize: number;
   convertChatGptPaste: boolean;
   autoFormatMathScripts: boolean;
 }
@@ -32,6 +33,7 @@ export const DEFAULT_SETTINGS: FenceRenderSettings = {
   wrapEquationCopy: true,
   latexPreviewScale: 200,
   latexPreviewWidth: "fit",
+  markdownPreviewFontSize: 16,
   convertChatGptPaste: true,
   autoFormatMathScripts: true,
   latexPath: "latex",
@@ -85,6 +87,12 @@ export function normalizeSettings(raw: unknown): FenceRenderSettings {
       value.latexPreviewWidth === "full" || value.latexPreviewWidth === "fit"
         ? value.latexPreviewWidth
         : DEFAULT_SETTINGS.latexPreviewWidth,
+    markdownPreviewFontSize: clampNumber(
+      value.markdownPreviewFontSize,
+      DEFAULT_SETTINGS.markdownPreviewFontSize,
+      10,
+      30,
+    ),
     convertChatGptPaste: booleanOr(
       value.convertChatGptPaste,
       DEFAULT_SETTINGS.convertChatGptPaste,
